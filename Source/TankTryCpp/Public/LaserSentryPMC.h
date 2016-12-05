@@ -27,7 +27,7 @@ public:
 	float speedModifier = 1;
 private:
 	//FVector oldPosition = FVector(0, 0, 0);
-	FVector trueVelocity = FVector(0,0,0);
+	//FVector trueMovThisFrame = FVector(0,0,0);
 	FVector oldVelocity = FVector(0, 0, 0);
 	bool stopping = false;
 };

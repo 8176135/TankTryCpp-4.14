@@ -4,7 +4,7 @@
 #include "UtilityLib.h"
 #include "CppFunctionList.h"
 
-FVector UUtilityLib::GetRandLocAroundPlayer(FVector target, FVector orbitor, float distance)
-{
-	return UCppFunctionList::FindOrbitRadiusPos(target, orbitor, distance);
-}
+//FVector UUtilityLib::GetClosestLocAroundTarget(ADonNavigationManager* navManager,FVector target, FVector orbitor, float distance)
+//{
+//	return UCppFunctionList::FindEmptyOrbitRadiusPos(navManager, target, orbitor, distance);
+//}

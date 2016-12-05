@@ -6,7 +6,7 @@ public class TankTryCpp : ModuleRules
 {
 	public TankTryCpp(TargetInfo Target)
 	{
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "AIModule", "BehaviorTreeEditor", "GameplayTasks" });
+		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "AIModule", "BehaviorTreeEditor", "GameplayTasks", "DonAINavigation" });
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });
 

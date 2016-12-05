@@ -3,6 +3,8 @@
 #pragma once
 
 #include "AIController.h"
+#include "LaserOrbCpp.h"
+#include "EnemyEventHandler.h"
 #include "LaserSentryController.generated.h"
 
 /**
@@ -19,12 +21,19 @@ public:
 	virtual void Tick(float DeltaTime) override;
 	virtual void SetPawn(APawn* inPawn) override;
 
-public:
+	UEnemyEventHandler* EEHandler;
+
+	UFUNCTION()
+	void CtrlPawnIsHurt(float amountOfDmg);
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = AiEssential)
 		AActor *AiTarget;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = EnemyEssential)
 		float fireRate = 120;
-
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = AiEssential)
+		float optimalHeight = 100;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = AiEssential)
+		float optimalDistance = 300;
 private:
 	FRotator interpFaceDirection;
 	FRotator trueFaceDirection;
@@ -32,5 +41,5 @@ private:
 	FTimerHandle shootingTimer;
 	void ShootingTimeElapsed();
 
-	APawn* ControlledPawn;
+	ALaserOrbCpp* ControlledPawn;
 };

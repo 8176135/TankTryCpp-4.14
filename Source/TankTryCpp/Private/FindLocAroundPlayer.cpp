@@ -15,8 +15,8 @@ EBTNodeResult::Type UFindLocAroundPlayer::ExecuteTask(UBehaviorTreeComponent & O
 	{
 
 		UBlackboardComponent* Blackboard = controller->FindComponentByClass<UBlackboardComponent>();
-		FVector playerLocation = UGameplayStatics::GetPlayerController(GetWorld(), 0)->GetControlledPawn()->GetActorLocation();
-		FVector direction = (controller->GetControlledPawn()->GetActorLocation() - playerLocation).GetSafeNormal();
+		FVector playerLocation = UGameplayStatics::GetPlayerController(GetWorld(), 0)->GetPawn()->GetActorLocation();
+		FVector direction = (controller->GetPawn()->GetActorLocation() - playerLocation).GetSafeNormal();
 		if (direction == FVector::ZeroVector)
 		{
 			return EBTNodeResult::Failed;
@@ -24,7 +24,7 @@ EBTNodeResult::Type UFindLocAroundPlayer::ExecuteTask(UBehaviorTreeComponent & O
 		direction *= floatDistance;
 
 		//Blackboard->SetValueAsVector(NewLocation.SelectedKeyName,UCppFunctionList::FindOrbitRadiusPos());
-		UCppFunctionList::PrintVector(UGameplayStatics::GetPlayerController(GetWorld(), 0)->GetControlledPawn()->GetActorLocation());
+		UCppFunctionList::PrintVector(UGameplayStatics::GetPlayerController(GetWorld(), 0)->GetPawn()->GetActorLocation());
 
 		return EBTNodeResult::Succeeded;
 	}

@@ -3,6 +3,7 @@
 #include "TankTryCpp.h"
 #include "CppFunctionList.h"
 
+
 //UCppFunctionList::UCppFunctionList(const FObjectInitializer& ObjectInitializer)
 //	: Super(ObjectInitializer)
 //{
@@ -37,16 +38,16 @@ void UCppFunctionList::PrintRotator(FRotator input)
 	UE_LOG(LogTemp, Log, TEXT("X: %f, Y: %f, Z: %f"), input.Roll, input.Pitch, input.Yaw);
 	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Cyan, FString::Printf(TEXT("X: %f, Y: %f, Z: %f"), input.Roll, input.Pitch, input.Yaw));
 }
-void UCppFunctionList::PrintString(TCHAR* txt)
+void UCppFunctionList::PrintString(FString txt)
 {
-	UE_LOG(LogTemp, Log, TEXT("%s"), *FString::Printf(txt));
-	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Cyan, FString::Printf(txt));
+	UE_LOG(LogTemp, Log, TEXT("%s"), *(txt));
+	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Cyan, (txt));
 }
 
 void UCppFunctionList::PrintBool(bool inBool)
 {
 	UE_LOG(LogTemp, Log, TEXT("%s"), inBool ? "True" : "False");
-	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Cyan, FString::Printf(TEXT("%s"), inBool ? "True": "False"));
+	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Cyan, FString::Printf(TEXT("%s"), inBool ? "True" : "False"));
 }
 
 float UCppFunctionList::CosineGraph(float Ampitude, float waveLength, float X)
@@ -55,13 +56,28 @@ float UCppFunctionList::CosineGraph(float Ampitude, float waveLength, float X)
 	return (cosineAngle * Ampitude + FMath::Abs(Ampitude));
 }
 
-FVector UCppFunctionList::FindOrbitRadiusPos(FVector target, FVector orbitor, float distance)
+FVector UCppFunctionList::FindEmptyOrbitRadiusPos(ADonNavigationManager* navManager, FVector target, FVector orbitor, float distance)
 {
 	FVector direction = (orbitor - target).GetSafeNormal();
 	if (direction == FVector::ZeroVector)
 	{
 		return FVector();
 	}
-	direction *= distance;
-	return target + direction;
+	FRotator startingRot = direction.ToOrientationRotator();
+	for (int i = 0; i < 360; i += 3)
+	{
+		FRotator actualRot = startingRot.Add(0, i, 0);
+
+		FVector currentTarget = target + (actualRot.Vector() * distance);
+		FDonNavigationVoxel* checkData = navManager->VolumeAt(currentTarget);
+		if (checkData->CanNavigate())
+		{
+			return currentTarget;
+		}
+		else
+		{
+			//PrintString(TEXT("WTF"));
+		}
+	}
+	return FVector();
 }

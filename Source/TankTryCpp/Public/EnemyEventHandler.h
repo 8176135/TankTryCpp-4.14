@@ -1,24 +1,20 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
-
-#include "GameFramework/Actor.h"
+#include "Components/ActorComponent.h"
 #include "EnemyEventHandler.generated.h"
 
 UCLASS()
-class TANKTRYCPP_API AEnemyEventHandler : public AActor
+class TANKTRYCPP_API UEnemyEventHandler : public UActorComponent
 {
 	GENERATED_BODY()
 	
 public:	
 	// Sets default values for this actor's properties
-	AEnemyEventHandler();
-
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
+	UEnemyEventHandler();
 	
-	// Called every frame
-	virtual void Tick( float DeltaSeconds ) override;
+	DECLARE_DELEGATE_OneParam(ChildIsBeingHurt, float);
+	ChildIsBeingHurt HurtDele;
 
 	
 	

@@ -10,6 +10,8 @@ ALaserOrbCpp::ALaserOrbCpp()
 {
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
+	
+	EEHandler = CreateDefaultSubobject<UEnemyEventHandler>(TEXT("EnemyEventHandlerFirst"));
 	//OurMovementComponent = CreateDefaultSubobject<ULaserSentryPMC>(TEXT("LaserSentryCustomMC"));
 	//OurMovementComponent->UpdatedComponent = RootComponent;
 	//firePoint->AttachTo(RootComponent);
@@ -25,7 +27,7 @@ void ALaserOrbCpp::BeginPlay()
 // Called every frame
 void ALaserOrbCpp::Tick(float deltaTime)
 {
-	currentDodgeTime += deltaTime;
+	//currentDodgeTime += deltaTime;
 
 	
 	//OurMovementComponent->AddInputVector(GetActorRightVector() * speed);
@@ -70,8 +72,50 @@ void ALaserOrbCpp::Tick(float deltaTime)
 	//}
 	Super::Tick(deltaTime);
 }
+
+float ALaserOrbCpp::TakeDamage(float damage, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+{
+	FHitResult hitRes;
+	FVector impulseDir;
+	DamageEvent.GetBestHitInfo(this, DamageCauser, hitRes, impulseDir);
+	
+	health -= damage;
+
+	if (health <= 0)
+	{
+		SetLifeSpan(0.1f);
+		DeathEfx();
+	}
+	else
+	{
+		if (EEHandler->HurtDele.IsBound())
+		{
+			EEHandler->HurtDele.Execute(5);
+		}
+		else
+		{
+			UCppFunctionList::PrintString(TEXT("Delegate not bound..?"));
+		}
+
+	}
+
+	return Super::TakeDamage(damage, DamageEvent, EventInstigator, DamageCauser);
+}
+
 void ALaserOrbCpp::Shoot(AActor* target)
 {
+	FHitResult laserFireRes;
+	bool isHit = GetWorld()->LineTraceSingleByObjectType(laserFireRes, GetActorLocation() + GetActorForwardVector() * 40, target->GetActorLocation(),
+		laserBlockingObjects, FCollisionQueryParams(FName(EName::NAME_None), false, target));
+	if (!isHit)
+	{
+		float distance = (target->GetActorLocation() - GetActorLocation()).Size();
+		float damage = UCppFunctionList::CosineGraph(damagePerShot, damageFalloff, distance);
+		FVector hitDir = (laserFireRes.TraceEnd - laserFireRes.TraceStart).GetSafeNormal();
+		//UCppFunctionList::PrintString(TEXT("IsHitFine"));
+		UGameplayStatics::ApplyPointDamage(target, damagePerShot, hitDir, laserFireRes, nullptr, this, damageTypeGiven);
+	}
+	LaserEffects();
 	////FHitResult laserFireRes;
 
 	////bool isHit = GetWorld()->LineTraceSingleByObjectType(laserFireRes, GetActorLocation() + GetActorForwardVector() * 40, AiTarget->GetActorLocation(), laserBlockingObjects, FCollisionQueryParams(FName(EName::NAME_None, false)));
@@ -96,26 +140,21 @@ void ALaserOrbCpp::Shoot(AActor* target)
 //	return OurMovementComponent;
 //}
 
-void ALaserOrbCpp::TakingDamage(float Damage, FVector hitFrom)
-{
-	
-	//GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Cyan, TEXT("Workz"));
-	if (FMath::FRand() < Damage / dodgeChanceToDmgRatio && currentDodgeTime > dodgeCooldown)
-	{
-		currentDodgeTime = 0;
-		if (FMath::RandBool())
-		{
-			StartDodging(hitFrom.GetSafeNormal().RotateAngleAxis(90, FVector::UpVector));
-		}
-		else
-		{
-			StartDodging(hitFrom.GetSafeNormal().RotateAngleAxis(-90, FVector::UpVector));
-		}
-	}
-}
-
-//void ALaserOrbCpp::DoesThisWorkTwice()
+//void ALaserOrbCpp::TakingDamage(float Damage, FVector hitFrom)
 //{
-//
+//	
+//	//GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Cyan, TEXT("Workz"));
+//	if (FMath::FRand() < Damage / dodgeChanceToDmgRatio && currentDodgeTime > dodgeCooldown)
+//	{
+//		currentDodgeTime = 0;
+//		if (FMath::RandBool())
+//		{
+//			StartDodging(hitFrom.GetSafeNormal().RotateAngleAxis(90, FVector::UpVector));
+//		}
+//		else
+//		{
+//			StartDodging(hitFrom.GetSafeNormal().RotateAngleAxis(-90, FVector::UpVector));
+//		}
+//	}
 //}
 

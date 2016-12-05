@@ -28,15 +28,18 @@ void ULaserSentryPMC::TickComponent(float deltaTime, ELevelTick TickType, FActor
 	const AController* Controller = PawnOwner->GetController();
 	if (IsValid(Controller) && Controller->IsLocalController())
 	{
+		//UCppFunctionList::PrintVector(GetInputVector());
 		FVector desiredMovementThisFrame = ConsumeInputVector().GetClampedToMaxSize(1) * deltaTime * maxSpeed;
 		if (!desiredMovementThisFrame.IsNearlyZero())
 		{
+			FVector trueMovThisFrame = FMath::Lerp(oldVelocity, desiredMovementThisFrame, deltaTime / turningTime);
+			oldVelocity = trueMovThisFrame;
 			FHitResult Hit;
-			SafeMoveUpdatedComponent(desiredMovementThisFrame, UpdatedComponent->GetComponentRotation(), true, Hit);
+			SafeMoveUpdatedComponent(trueMovThisFrame, UpdatedComponent->GetComponentRotation(), true, Hit);
 			if (Hit.IsValidBlockingHit())
 			{
-				HandleImpact(Hit, deltaTime, desiredMovementThisFrame);
-				SlideAlongSurface(desiredMovementThisFrame, 1.0 - Hit.Time, Hit.Normal, Hit);
+				HandleImpact(Hit, deltaTime, trueMovThisFrame);
+				SlideAlongSurface(trueMovThisFrame, 1.0 - Hit.Time, Hit.Normal, Hit);
 			}
 		}
 
@@ -73,6 +76,6 @@ void ULaserSentryPMC::UpdateComponentVelocity()
 {
 	if (UpdatedComponent)
 	{
-		UpdatedComponent->ComponentVelocity = trueVelocity;
+		UpdatedComponent->ComponentVelocity = Velocity;
 	}
 }
