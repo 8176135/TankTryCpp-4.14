@@ -2,6 +2,17 @@ Binaries
 DerivedDataCache
 Intermediate
 Saved
+Debug
+Build
+ipch
+Releases
+Plugins/DonAINavigation/Binaries
+Plugins/DonAINavigation/Intermediate
+Plugins/DonAINavigation/Resources
+Plugins/DonAINavigation/DonAINavigation.uplugin
+Plugins/DonAINavigation/LICENSE.md
+Plugins/DonAINavigation/README.md
+*.ipch
 *.VC.db
 *.opensdf
 *.opendb
