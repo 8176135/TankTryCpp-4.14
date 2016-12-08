@@ -8,30 +8,18 @@
 //
 // The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 //
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, 
 // WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+#include "TankTryCpp.h"
+#include "DonAINavigationPrivatePCH.h"
 
-#pragma once
+#include "Legacy/DEPRECATED_DoNNavigationVolumeComponent.h"
 
-#include "DonNavigationManager.h"
-
-#include "DonNavigationManagerUnbound.generated.h"
-
-UCLASS()
-class DONAINAVIGATION_API ADonNavigationManagerUnbound : public ADonNavigationManager
+UDoNNavigationVolumeComponent::UDoNNavigationVolumeComponent(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
-	GENERATED_BODY()
+	BoxExtent = FVector(50.0f, 50.0f, 50.0f);
 
-public:
-	ADonNavigationManagerUnbound(const FObjectInitializer& ObjectInitializer);
-
-
-	virtual void BeginPlay() override;
-
-protected:
-	virtual void TickNavigationSolver(FDonNavigationQueryTask& task) override;
-	virtual bool PrepareSolution(FDonNavigationQueryTask& Task) override;
-
-	TArray<FVector> NeighborsAsVectors(FVector Location);
-	void ExpandFrontierTowardsTarget(FDonNavigationQueryTask& Task, FVector Current, FVector Neighbor);	
-};
+	static FName CollisionProfileName(TEXT("DoNNavigationVolume"));
+	SetCollisionProfileName(CollisionProfileName);	
+}

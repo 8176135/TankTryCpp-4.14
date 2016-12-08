@@ -11,10 +11,10 @@
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, 
 // WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
+#include "TankTryCpp.h"
 #include "DonAINavigationPrivatePCH.h"
 
-#include "DonNavigationManager.h"
+#include "DonAINavigation/Classes/DonNavigationManager.h"
 #include "Multithreading/DonNavigationWorker.h"
 
 #include <stdio.h>
@@ -261,6 +261,10 @@ void ADonNavigationManager::OnConstruction(const FTransform& Transform)
 	Debug_RecalculateWorldBounds();
 }
 
+//FDonVoxelCollisionProfile ADonNavigationManager::GetVoxelCollisionProfileFromMeshPublic(const FDonMeshIdentifier& MeshId, bool& bResultIsValid, bool bIgnoreMeshOriginOccupancy, bool bDisableCacheUsage, FName CustomCacheIdentifier, bool bReloadCollisionCache, bool bUseCheapBoundsCollision, float BoundsScaleFactor, bool DrawDebug)
+//{
+//	
+//}
 #if WITH_EDITOR
 void ADonNavigationManager::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
 {	
@@ -667,8 +671,7 @@ FDonVoxelCollisionProfile ADonNavigationManager::SampleVoxelCollisionForMesh(UPr
 				if (!collisionSampled)
 				{
 					TArray<FOverlapResult> outOverlaps;
-					bool const bHit = GetWorld()->OverlapMultiByObjectType(outOverlaps, volumeToCheck.Location, FQuat::Identity, objectParams, VoxelCollisionShape, collisionParams);
-
+					bool const bHit = GetWorld()->OverlapMultiByObjectType(outOverlaps,  volumeToCheck.Location, FQuat::Identity, objectParams, VoxelCollisionShape, collisionParams);
 					for (const auto& overlap : outOverlaps)
 					{
 						if (overlap.GetComponent() == Mesh)
@@ -1876,6 +1879,51 @@ void ADonNavigationManager::InvalidVolumeErrorLog(FDonNavigationVoxel* OriginVol
 	message += FString("Please create a new trigger object type for all triggers in your map and use that to avoid trigger volumes being from picked up as obstacles.\n");
 
 	UE_LOG(DoNNavigationLog, Warning, TEXT("%s"), *message);
+}
+
+
+void ADonNavigationManager::RemoveCollisionAtMesh(UPrimitiveComponent* mesh, bool& bResultIsValid, FName CustomCacheIdentifier, bool DrawDebug)
+{
+	FDonMeshIdentifier MeshID = FDonMeshIdentifier(mesh, CustomCacheIdentifier);
+	FDonVoxelCollisionProfile VoxelCollisionProfile = GetVoxelCollisionProfileFromMesh(MeshID, bResultIsValid, false, false, CustomCacheIdentifier, false, false, 1, DrawDebug);
+	TArray<FDonNavigationVoxel*> newSpaceOccupied;
+	newSpaceOccupied.Reserve(VoxelCollisionProfile.RelativeVoxelOccupancy.Num());
+	auto meshOriginVolume = VolumeAt(mesh->GetComponentLocation());
+	for (const auto& offset : VoxelCollisionProfile.RelativeVoxelOccupancy)
+	{
+		auto volume = VolumeAtSafe(meshOriginVolume->X + offset.X, meshOriginVolume->Y + offset.Y, meshOriginVolume->Z + offset.Z);
+		if (!volume)
+			continue;
+
+		//auto bPreviouslyNavigable = volume->CanNavigate();
+
+		volume->SetNavigability(false);
+		//VoxelCollisionProfile.WorldVoxelsOccupied.Add(volume);
+
+		// For reasons that I don't yet understand, using bPreviouslyNavigable to optimize the number of delegates we check for doesn't work 100% right.
+		// There are edge cases where it causes us to miss out on valuable dynamic collision udpates that we truly need to listen to. 
+		// For now I'm commenting it out as both are logically equivalent; filtering is more efficient though.
+		//if (bPreviouslyNavigable)
+		{
+			newSpaceOccupied.Add(volume); // We don't broadcast directly from here anymore to account for potential side-effects introduced by the delegate owner
+		}
+
+		// Draw occupied voxels
+		if (DrawDebug)
+			DrawDebugVoxel_Safe(GetWorld(), volume->Location, NavVolumeExtent(), FColor::Red, false, 0.13f, 0, DebugVoxelsLineThickness);
+	}
+
+	// Broadcast dynamic collision updates!
+	if (!bMultiThreadingEnabled)
+	{
+		for (auto volume : newSpaceOccupied)
+			volume->BroadcastCollisionUpdates();
+	}
+	else
+	{
+		for (auto volume : newSpaceOccupied)
+			DynamicCollisionBroadcastQueue.Enqueue(volume);
+	}
 }
 
 bool ADonNavigationManager::FindPathSolution_StressTesting(AActor* Actor, FVector Destination, TArray<FVector> &PathSolutionRaw, TArray<FVector> &PathSolutionOptimized, UPARAM(ref) const FDoNNavigationQueryParams& QueryParams, UPARAM(ref) const FDoNNavigationDebugParams& DebugParams)

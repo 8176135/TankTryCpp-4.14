@@ -4,7 +4,7 @@
 
 #include "GameFramework/Pawn.h"
 
-#include "DonNavigationManager.h"
+//#include "DonNavigationManager.h"
 
 #include "HoverTank.generated.h"
 
@@ -30,8 +30,8 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* InputComponent) override;
 
-	UFUNCTION(BlueprintPure, meta=(DisplayName = "Get Closest Location Around Target", Category = "Utility"))
-	FVector GetClosestLocAroundTarget(ADonNavigationManager* navManager, FVector target, FVector orbitor, float distance);
+	//UFUNCTION(BlueprintPure, meta=(DisplayName = "Get Closest Location Around Target", Category = "Utility"))
+	//FVector GetClosestLocAroundTarget(ADonNavigationManager* navManager, FVector target, FVector orbitor, float distance);
 };
 
 

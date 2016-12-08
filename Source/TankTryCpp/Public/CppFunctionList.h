@@ -1,7 +1,6 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
-#include "DonNavigationManager.h"
 //#include "CppFunctionList.generated.h"
 /**
  *
@@ -16,12 +15,12 @@ class UCppFunctionList
 			//UFUNCTION(BlueprintCallable, Category = doesthiswork)
 			//	static void Hahaha();
 public:
-		static void PrintVector(FVector input);
+	static void PrintVector(FVector input, float timeOnScreen = 5);
 	static void PrintRotator(FRotator input);
 	static void PrintString(FString txt);
 	static void PrintBool(bool inBool);
 	static float CosineGraph(float Ampitude, float waveLength, float X);
 
-	static FVector FindEmptyOrbitRadiusPos(ADonNavigationManager* navManager, FVector target, FVector orbitor, float distance);
+//	static FVector FindEmptyOrbitRadiusPos(ADonNavigationManager* navManager, FVector target, FVector orbitor, float distance);
 	//static bool IsWithinDistance(float a, float b, float tolerance);
 };

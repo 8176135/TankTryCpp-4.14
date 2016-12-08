@@ -8,13 +8,29 @@
 //
 // The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, 
 // WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-#include "CoreUObject.h"
-#include "Engine.h"
+#pragma once
+#include "DonNavigationManager.h"
 
-// You should place include statements to your module's private header files here.  You only need to
-// add includes for headers that are used in most of your module's source files though.
-#include "IDonAINavigation.h"
+#include "DonNavigationManagerUnbound.generated.h"
+
+UCLASS()
+class TANKTRYCPP_API ADonNavigationManagerUnbound : public ADonNavigationManager
+{
+	GENERATED_BODY()
+
+public:
+	ADonNavigationManagerUnbound(const FObjectInitializer& ObjectInitializer);
+
+
+	virtual void BeginPlay() override;
+
+protected:
+	virtual void TickNavigationSolver(FDonNavigationQueryTask& task) override;
+	virtual bool PrepareSolution(FDonNavigationQueryTask& Task) override;
+
+	TArray<FVector> NeighborsAsVectors(FVector Location);
+	void ExpandFrontierTowardsTarget(FDonNavigationQueryTask& Task, FVector Current, FVector Neighbor);	
+};

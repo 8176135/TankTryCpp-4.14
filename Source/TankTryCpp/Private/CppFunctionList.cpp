@@ -28,10 +28,10 @@
 //	
 //}
 
-void UCppFunctionList::PrintVector(FVector input)
+void UCppFunctionList::PrintVector(FVector input, float timeOnScreen)
 {
 	UE_LOG(LogTemp, Log, TEXT("X: %f, Y: %f, Z: %f"), input.X, input.Y, input.Z);
-	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Cyan, FString::Printf(TEXT("X: %f, Y: %f, Z: %f"), input.X, input.Y, input.Z));
+	GEngine->AddOnScreenDebugMessage(-1, timeOnScreen, FColor::Cyan, FString::Printf(TEXT("X: %f, Y: %f, Z: %f"), input.X, input.Y, input.Z));
 }
 void UCppFunctionList::PrintRotator(FRotator input)
 {
@@ -56,28 +56,28 @@ float UCppFunctionList::CosineGraph(float Ampitude, float waveLength, float X)
 	return (cosineAngle * Ampitude + FMath::Abs(Ampitude));
 }
 
-FVector UCppFunctionList::FindEmptyOrbitRadiusPos(ADonNavigationManager* navManager, FVector target, FVector orbitor, float distance)
-{
-	FVector direction = (orbitor - target).GetSafeNormal();
-	if (direction == FVector::ZeroVector)
-	{
-		return FVector();
-	}
-	FRotator startingRot = direction.ToOrientationRotator();
-	for (int i = 0; i < 360; i += 3)
-	{
-		FRotator actualRot = startingRot.Add(0, i, 0);
-
-		FVector currentTarget = target + (actualRot.Vector() * distance);
-		FDonNavigationVoxel* checkData = navManager->VolumeAt(currentTarget);
-		if (checkData->CanNavigate())
-		{
-			return currentTarget;
-		}
-		else
-		{
-			//PrintString(TEXT("WTF"));
-		}
-	}
-	return FVector();
-}
+//FVector UCppFunctionList::FindEmptyOrbitRadiusPos(ADonNavigationManager* navManager, FVector target, FVector orbitor, float distance)
+//{
+//	FVector direction = (orbitor - target).GetSafeNormal();
+//	if (direction == FVector::ZeroVector)
+//	{
+//		return FVector();
+//	}
+//	FRotator startingRot = direction.ToOrientationRotator();
+//	for (int i = 0; i < 360; i += 3)
+//	{
+//		FRotator actualRot = startingRot.Add(0, i, 0);
+//
+//		FVector currentTarget = target + (actualRot.Vector() * distance);
+//		FDonNavigationVoxel* checkData = navManager->VolumeAt(currentTarget);
+//		if (checkData->CanNavigate())
+//		{
+//			return currentTarget;
+//		}
+//		else
+//		{
+//			//PrintString(TEXT("WTF"));
+//		}
+//	}
+//	return FVector();
+//}

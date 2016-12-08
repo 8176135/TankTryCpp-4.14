@@ -11,40 +11,21 @@
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, 
 // WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+#include "TankTryCpp.h"
+#include "DonAINavigationPrivatePCH.h"
 
-#pragma once
+#include "DonNavigationHelper.h"
 
-#include "ModuleManager.h"
-
-DECLARE_LOG_CATEGORY_EXTERN(DoNNavigationLog, Log, All);
-
-/**
- * The public interface to this module
- */
-class IDonAINavigation : public IModuleInterface
+ADonNavigationManager* UDonNavigationHelper::DonNavigationManager(UObject* WorldContextObject)
 {
+	UWorld* const World = GEngine->GetWorldFromContextObject(WorldContextObject);
+	if (!World)
+		return NULL;
 
-public:
-
-	/**
-	 * Singleton-like access to this module's interface.  This is just for convenience!
-	 * Beware of calling this during the shutdown phase, though.  Your module might have been unloaded already.
-	 *
-	 * @return Returns singleton instance, loading the module on demand if needed
-	 */
-	static inline IDonAINavigation& Get()
+	for (TActorIterator<ADonNavigationManager> It(World, ADonNavigationManager::StaticClass()); It; ++It)
 	{
-		return FModuleManager::LoadModuleChecked< IDonAINavigation >( "DonAINavigation" );
+		return *It;
 	}
 
-	/**
-	 * Checks to see if this module is loaded and ready.  It is only valid to call Get() if IsAvailable() returns true.
-	 *
-	 * @return True if the module is loaded and ready to use
-	 */
-	static inline bool IsAvailable()
-	{
-		return FModuleManager::Get().IsModuleLoaded( "DonAINavigation" );
-	}
-};
-
+	return NULL;
+}

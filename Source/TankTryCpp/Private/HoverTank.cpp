@@ -43,8 +43,8 @@ void AHoverTank::EditDisplaySize(UPARAM(ref) UDecalComponent *hello, float sizeT
 	}
 }
 
-FVector AHoverTank::GetClosestLocAroundTarget(ADonNavigationManager* navManager,FVector target, FVector orbitor, float distance)
-{
-	return UCppFunctionList::FindEmptyOrbitRadiusPos(navManager, target, orbitor, distance);
-}
+//FVector AHoverTank::GetClosestLocAroundTarget(ADonNavigationManager* navManager,FVector target, FVector orbitor, float distance)
+//{
+//	return UCppFunctionList::FindEmptyOrbitRadiusPos(navManager, target, orbitor, distance);
+//}
 

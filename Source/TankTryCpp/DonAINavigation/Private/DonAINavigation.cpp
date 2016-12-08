@@ -11,25 +11,33 @@
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, 
 // WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+#include "TankTryCpp.h"
+#include "DonAINavigationPrivatePCH.h"
 
-#pragma once
+DEFINE_LOG_CATEGORY(DoNNavigationLog);
 
-#include "Kismet/BlueprintFunctionLibrary.h"
-#include "DonNavigationManager.h"
-
-#include "DonNavigationHelper.generated.h"
-
-/**
- * 
- */
-UCLASS()
-class DONAINAVIGATION_API UDonNavigationHelper : public UBlueprintFunctionLibrary
+class FDonAINavigation : public IDonAINavigation
 {
-	GENERATED_BODY()
-
-	public:
-		
-	/* Returns the Voxel navigation builder used for building navigation volumes and performing pathfinding */
-	UFUNCTION(BlueprintPure, Category = "DoN Navigation", meta = (WorldContext = "WorldContextObject"))
-	static ADonNavigationManager* DonNavigationManager(UObject* WorldContextObject);
+	/** IModuleInterface implementation */
+	virtual void StartupModule() override;
+	virtual void ShutdownModule() override;
 };
+
+//IMPLEMENT_MODULE( FDonAINavigation, DonAINavigation )
+
+
+
+void FDonAINavigation::StartupModule()
+{
+	// This code will execute after your module is loaded into memory (but after global variables are initialized, of course.)
+}
+
+
+void FDonAINavigation::ShutdownModule()
+{
+	// This function may be called during shutdown to clean up your module.  For modules that support dynamic reloading,
+	// we call this function before unloading the module.
+}
+
+
+
