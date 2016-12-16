@@ -50,6 +50,26 @@ void UCppFunctionList::PrintBool(bool inBool)
 	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Cyan, FString::Printf(TEXT("%s"), inBool ? "True" : "False"));
 }
 
+FVector UCppFunctionList::Clamp3Numbers(FVector input, float x, float y, float z)
+{
+	if (input.X > x)
+	{
+		input.X = x;
+	}
+
+	if (input.Y > y)
+	{
+		input.Y = y;
+	}
+
+	if (input.Z > z)
+	{
+		input.Z = z;
+	}
+
+	return input;
+}
+
 float UCppFunctionList::CosineGraph(float Ampitude, float waveLength, float X)
 {
 	float cosineAngle = FMath::Cos((PI / waveLength) * X);

@@ -25,8 +25,6 @@ void ALaserSentryController::Tick(float deltaTime)
 	{
 		FVector deltaVector = (AiTarget->GetActorLocation() - ControlledPawn->GetActorLocation());
 		trueFaceDirection = deltaVector.GetSafeNormal().Rotation();
-		//trueFaceDirection.Yaw += 180;
-		//trueFaceDirection.Pitch *= -1;
 		interpFaceDirection = FMath::RInterpTo(ControlledPawn->GetActorRotation(), trueFaceDirection, deltaTime, 4);
 		ControlledPawn->SetActorRotation(interpFaceDirection);
 		if (Blackboard->GetValueAsEnum("State") == 1)
@@ -67,16 +65,5 @@ void ALaserSentryController::ShootingTimeElapsed()
 	if (Blackboard->GetValueAsEnum(FName("State")) == 1 && IsValid(AiTarget) && IsValid(ControlledPawn))
 	{
 		ControlledPawn->Shoot(AiTarget);
-		//EEHandler->HurtDele.Unbind();
-		//FHitResult laserFireRes;
-		//bool isHit = GetWorld()->LineTraceSingleByObjectType(laserFireRes, ControlledPawn->GetActorLocation() + GetActorForwardVector() * 40, AiTarget->GetActorLocation(), laserBlockingObjects, FCollisionQueryParams(FName(EName::NAME_None), false, AiTarget));
-		//if (!isHit)
-		//{
-		//	float distance = (AiTarget->GetActorLocation() - ControlledPawn->GetActorLocation()).Size();
-		//	float damage = UCppFunctionList::CosineGraph(damagePerShot, damageFalloff, distance);
-		//	FVector hitDir = (laserFireRes.TraceEnd - laserFireRes.TraceStart).GetSafeNormal();
-		//	UGameplayStatics::ApplyPointDamage(AiTarget, damagePerShot, hitDir, laserFireRes, nullptr, this, damageTypeGiven);
-		//	ControlledPawn->LaserEffects();
-		//}
 	}
 }

@@ -744,7 +744,7 @@ public:
 		void Debug_DrawAllVolumes(float LineThickness);
 
 	UFUNCTION(BlueprintCallable, Category = "DoN Navigation")
-		void Debug_DrawVolumesAroundPoint(FVector Location, int32 CubeSize, bool DrawPersistentLines, float Duration, float LineThickness, bool bAutoInitializeVolumes = false);
+		void Debug_DrawVolumesAroundPoint(FVector Location, int32 CubeSize, bool DrawPersistentLines, float Duration, float LineThickness, bool bAutoInitializeVolumes/* = false*/, FVector& volumeLoc);
 
 	UFUNCTION(BlueprintCallable, Category = "DoN Navigation")
 		void Debug_DrawVoxelCollisionProfile(UPrimitiveComponent* MeshOrPrimitive, bool bDrawPersistent = false, float Duration = 2.f);
@@ -819,7 +819,6 @@ private:
 	void DrawDebugPoint_Safe(UWorld* World, FVector PointLocation, float PointThickness, FColor Color, bool bPersistentLines, float LifeTime);
 	void DrawDebugSphere_Safe(UWorld* World, FVector Center, float Radius, float Segments, FColor Color, bool bPersistentLines, float LifeTime);
 	void DrawDebugVoxel_Safe(UWorld* World, FVector Center, FVector Box, FColor Color, bool bPersistentLines, float LifeTime, uint8 DepthPriority, float Thickness);
-
 	// Logging:
 	void InvalidVolumeErrorLog(FDonNavigationVoxel* OriginVolume, FDonNavigationVoxel* DestinationDestination, FVector Origin, FVector Destination);
 	TSet<FVector> UnresolvableVectors;
@@ -1126,7 +1125,8 @@ private:
 
 	// Voxel collision sampling:
 	void UpdateVoxelCollision(FDonNavigationVoxel& Volume);
-	public:
+	void UpdateVoxelCollisionForReal(FDonNavigationVoxel& Volume);
+public:
 	FDonVoxelCollisionProfile GetVoxelCollisionProfileFromMesh(const FDonMeshIdentifier& MeshId, bool &bResultIsValid, bool bIgnoreMeshOriginOccupancy = false, bool bDisableCacheUsage = false, FName CustomCacheIdentifier = NAME_None, bool bReloadCollisionCache = false, bool bUseCheapBoundsCollision = false, float BoundsScaleFactor = 1.f, bool DrawDebug = false);
 	private:
 	FDonVoxelCollisionProfile SampleVoxelCollisionForMesh(UPrimitiveComponent* Mesh, bool &bResultIsValid, bool bIgnoreMeshOriginOccupancy = false, FName CustomCacheIdentifier = NAME_None, bool bUseCheapBoundsCollision = false, float BoundsScaleFactor = 1.f, bool DrawDebug = false);

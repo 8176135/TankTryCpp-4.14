@@ -12,11 +12,11 @@
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, 
 // WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include "TankTryCpp.h"
-#include "DonAINavigationPrivatePCH.h"
+#include "DonAINavigation/Private/DonAINavigationPrivatePCH.h"
 
-#include "DonNavigatorInterface.h"
+#include "DonAINavigation/Classes/DonNavigatorInterface.h"
 
-#include "BehaviorTree/BTTask_FlyTo.h"
+#include "DonAINavigation/Classes/BehaviorTree/BTTask_FlyTo.h"
 
 #include "BehaviorTree/BlackboardComponent.h"
 #include "BehaviorTree/Blackboard/BlackboardKeyType_Object.h"

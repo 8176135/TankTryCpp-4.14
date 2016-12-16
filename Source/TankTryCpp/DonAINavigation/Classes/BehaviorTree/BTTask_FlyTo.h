@@ -16,7 +16,7 @@
 
 #include "BehaviorTree/Tasks/BTTask_BlackboardBase.h"
 
-#include "DonNavigationHelper.h"
+#include "DonAINavigation/Classes/DonNavigationHelper.h"
 
 #include "BTTask_FlyTo.generated.h"
 

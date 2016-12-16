@@ -19,6 +19,7 @@ public:
 	static void PrintRotator(FRotator input);
 	static void PrintString(FString txt);
 	static void PrintBool(bool inBool);
+	static FVector Clamp3Numbers(FVector input, float x, float y, float z);
 	static float CosineGraph(float Ampitude, float waveLength, float X);
 
 //	static FVector FindEmptyOrbitRadiusPos(ADonNavigationManager* navManager, FVector target, FVector orbitor, float distance);

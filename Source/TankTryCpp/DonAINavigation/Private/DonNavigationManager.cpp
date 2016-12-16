@@ -12,6 +12,7 @@
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, 
 // WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include "TankTryCpp.h"
+#include "CppFunctionList.h"
 #include "DonAINavigationPrivatePCH.h"
 
 #include "DonAINavigation/Classes/DonNavigationManager.h"
@@ -418,6 +419,24 @@ void ADonNavigationManager::UpdateVoxelCollision(FDonNavigationVoxel& Volume)
 		Volume.bIsInitialized = true;	
 }
 
+void ADonNavigationManager::UpdateVoxelCollisionForReal(FDonNavigationVoxel& Volume)
+{
+	// Note: We're sampling overlaps here as this is MUCH faster than sweeping for hits, this approach hasn't caused any issues hitherto
+	// That said, make sure that collision data for your map is being calculated along expected lines (eg: stray trigger volumes etc shouldn't be picked up as obstacles)
+
+	TArray<FOverlapResult> outOverlaps;
+
+	bool const bHit = GetWorld()->OverlapMultiByObjectType(outOverlaps, Volume.Location, FQuat::Identity, VoxelCollisionObjectParams, VoxelCollisionShape, VoxelCollisionQueryParams);
+
+	//bool CanNavigate = !outOverlaps.Num();
+	//Volume.SetNavigability(CanNavigate);
+	Volume.NumResidents = outOverlaps.Num();
+
+	// Profiling at max load (i.e. iterating over millions of voxels) reveals marginal performance boost for conditioned assignment. 
+	// Please don't edit without profiling at max load and comparing results first.
+	if (!Volume.bIsInitialized)
+		Volume.bIsInitialized = true;
+}
 
 void ADonNavigationManager::DiscoverNeighborsForVolume(int32 x, int32 y, int32 z, TArray<FDonNavigationVoxel*>& neighbors)
 {
@@ -552,7 +571,7 @@ static FString GetMeshAssetName(UPrimitiveComponent* Mesh)
 	auto staticMesh = Cast<UStaticMeshComponent>(Mesh);
 
 	if (staticMesh)
-		assetName = staticMesh->StaticMesh->GetName();
+		assetName = staticMesh->GetStaticMesh()->GetName();
 	else if (skeletalMesh)
 		assetName = skeletalMesh->SkeletalMesh->GetName();
 	
@@ -1155,12 +1174,13 @@ void ADonNavigationManager::Debug_DrawAllVolumes(float LineThickness)
 	}
 }
 
-void ADonNavigationManager::Debug_DrawVolumesAroundPoint(FVector Location, int32 CubeSize, bool DrawPersistentLines, float Duration, float LineThickness, bool bAutoInitializeVolumes/* = false*/)
+void ADonNavigationManager::Debug_DrawVolumesAroundPoint(FVector Location, int32 CubeSize, bool DrawPersistentLines, float Duration, float LineThickness, bool bAutoInitializeVolumes/* = false*/, FVector& volumeLoc)
 {
 	auto volume = VolumeAt(Location);
+	
 	if (!volume)
 		return;
-
+	volumeLoc = FVector(volume->X, volume->Y, volume->Z);
 	for (int i = volume->X - CubeSize / 2; i < volume->X + CubeSize / 2; i++)
 	{
 		for (int j = volume->Y - CubeSize / 2; j < volume->Y + CubeSize / 2; j++)
@@ -1632,7 +1652,7 @@ FDonNavigationVoxel* ADonNavigationManager::ResolveVector(FVector &DesiredLocati
 				volume = GetClosestNavigableVolume(DesiredLocation + tweak, CollisionComponent, bInitialPositionCollides, CollisionShapeInflation, bShouldSweep);
 
 				if (volume)
-				{
+				{ 
 					UE_LOG(DoNNavigationLog, Warning, TEXT("Substitute Origin or Destination (%s offset) is being used for pawn to overcome initial overlap. (Can be disabled in QueryParams)"), *tweak.ToString());
 
 					DesiredLocation = DesiredLocation + tweak;
@@ -1884,6 +1904,12 @@ void ADonNavigationManager::InvalidVolumeErrorLog(FDonNavigationVoxel* OriginVol
 
 void ADonNavigationManager::RemoveCollisionAtMesh(UPrimitiveComponent* mesh, bool& bResultIsValid, FName CustomCacheIdentifier, bool DrawDebug)
 {
+	if (!IsValid(mesh))
+	{
+		UCppFunctionList::PrintString("UR BLUEPRINT CODE IS FKED");
+		return;
+	}
+
 	FDonMeshIdentifier MeshID = FDonMeshIdentifier(mesh, CustomCacheIdentifier);
 	FDonVoxelCollisionProfile VoxelCollisionProfile = GetVoxelCollisionProfileFromMesh(MeshID, bResultIsValid, false, false, CustomCacheIdentifier, false, false, 1, DrawDebug);
 	TArray<FDonNavigationVoxel*> newSpaceOccupied;
@@ -1896,8 +1922,8 @@ void ADonNavigationManager::RemoveCollisionAtMesh(UPrimitiveComponent* mesh, boo
 			continue;
 
 		//auto bPreviouslyNavigable = volume->CanNavigate();
-
-		volume->SetNavigability(false);
+		UpdateVoxelCollisionForReal(*volume);
+		//UCppFunctionList::PrintString(FString::Printf(TEXT("LALALA-- : %d"), volume->NumResidents));
 		//VoxelCollisionProfile.WorldVoxelsOccupied.Add(volume);
 
 		// For reasons that I don't yet understand, using bPreviouslyNavigable to optimize the number of delegates we check for doesn't work 100% right.
@@ -2097,7 +2123,7 @@ bool ADonNavigationManager::SchedulePathfindingTask(AActor* Actor, FVector Desti
 		// Aborts the existing task and removes it from the active task list
 
 		CleanupExistingTaskForActor(Actor);
-	}	
+	}
 
 	FVector Origin = Actor->GetActorLocation();
 
@@ -2166,7 +2192,7 @@ bool ADonNavigationManager::SchedulePathfindingTask(AActor* Actor, FVector Desti
 	}
 	else
 	{
-		//UE_LOG(DoNNavigationLog, Warning, TEXT("[RAW] Origin: %s, Destination: %s"), *Origin.ToString(), *Destination.ToString());
+		//UE_LOG(DoNNavigationLog, Warning, TEXT("[RAW]  Origin: %s, Destination: %s"), *Origin.ToString(), *Destination.ToString());
 		//UE_LOG(DoNNavigationLog, Warning, TEXT("[RAW] OriginVolumeCenter: %s, DestinationVolumeCenter: %s"), *resolvedOriginCenter.ToString(), *resolvedDestinationCenter.ToString());
 		bResolvedOrigin = ResolveVector(Origin, resolvedOriginCenter, CollisionComponent, QueryParams.bFlexibleOriginGoal, QueryParams.CollisionShapeInflation);
 		bResolvedDestination = ResolveVector(Destination, resolvedDestinationCenter, CollisionComponent, QueryParams.bFlexibleOriginGoal, QueryParams.CollisionShapeInflation);
