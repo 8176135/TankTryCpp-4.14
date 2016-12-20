@@ -431,7 +431,6 @@ void ADonNavigationManager::UpdateVoxelCollisionForReal(FDonNavigationVoxel& Vol
 	//bool CanNavigate = !outOverlaps.Num();
 	//Volume.SetNavigability(CanNavigate);
 	Volume.NumResidents = outOverlaps.Num();
-
 	// Profiling at max load (i.e. iterating over millions of voxels) reveals marginal performance boost for conditioned assignment. 
 	// Please don't edit without profiling at max load and comparing results first.
 	if (!Volume.bIsInitialized)
@@ -1902,7 +1901,7 @@ void ADonNavigationManager::InvalidVolumeErrorLog(FDonNavigationVoxel* OriginVol
 }
 
 
-void ADonNavigationManager::RemoveCollisionAtMesh(UPrimitiveComponent* mesh, bool& bResultIsValid, FName CustomCacheIdentifier, bool DrawDebug)
+void ADonNavigationManager::UpdateCollisionAtMesh(UPrimitiveComponent* mesh, bool& bResultIsValid, FName CustomCacheIdentifier, bool DrawDebug)
 {
 	if (!IsValid(mesh))
 	{
@@ -1937,6 +1936,57 @@ void ADonNavigationManager::RemoveCollisionAtMesh(UPrimitiveComponent* mesh, boo
 		// Draw occupied voxels
 		if (DrawDebug)
 			DrawDebugVoxel_Safe(GetWorld(), volume->Location, NavVolumeExtent(), FColor::Red, false, 0.13f, 0, DebugVoxelsLineThickness);
+	}
+
+	// Broadcast dynamic collision updates!
+	if (!bMultiThreadingEnabled)
+	{
+		for (auto volume : newSpaceOccupied)
+			volume->BroadcastCollisionUpdates();
+	}
+	else
+	{
+		for (auto volume : newSpaceOccupied)
+			DynamicCollisionBroadcastQueue.Enqueue(volume);
+	}
+}
+
+void ADonNavigationManager::ChangeCollisionAtMesh(UPrimitiveComponent* mesh, bool decrease, bool useSimpleCol, bool& bResultIsValid, FName CustomCacheIdentifier, bool DrawDebug)
+{
+	if (!IsValid(mesh))
+	{
+		UCppFunctionList::PrintString("UR BLUEPRINT CODE IS FKED");
+		return;
+	}
+
+	FDonMeshIdentifier MeshID = FDonMeshIdentifier(mesh, CustomCacheIdentifier);
+	FDonVoxelCollisionProfile VoxelCollisionProfile = GetVoxelCollisionProfileFromMesh(MeshID, bResultIsValid, false, false, CustomCacheIdentifier, false, useSimpleCol, 1, DrawDebug);
+	TArray<FDonNavigationVoxel*> newSpaceOccupied;
+	newSpaceOccupied.Reserve(VoxelCollisionProfile.RelativeVoxelOccupancy.Num());
+	auto meshOriginVolume = VolumeAt(mesh->GetComponentLocation());
+	for (FVector offset : VoxelCollisionProfile.RelativeVoxelOccupancy)
+	{
+		auto volume = VolumeAtSafe(meshOriginVolume->X + offset.X, meshOriginVolume->Y + offset.Y, meshOriginVolume->Z + offset.Z);
+		if (!volume)
+			continue;
+		if (!volume->bIsInitialized)
+		{
+			UpdateVoxelCollisionForReal(*volume);
+		}
+		else
+		{
+			volume->SetNavigability(decrease);
+		}
+		//auto bPreviouslyNavigable = volume->CanNavigate();
+		//UCppFunctionList::PrintString(FString::Printf(TEXT("LALALA-- : %d"), volume->NumResidents));
+		//VoxelCollisionProfile.WorldVoxelsOccupied.Add(volume);
+		{
+			newSpaceOccupied.Add(volume); // We don't broadcast directly from here anymore to account for potential side-effects introduced by the delegate owner
+		}
+
+		// Draw occupied voxels
+		if (DrawDebug)
+			DrawDebugVoxel_Safe(GetWorld(), volume->Location, NavVolumeExtent(), FColor::Red, true, 0.13f, 0, DebugVoxelsLineThickness);
 	}
 
 	// Broadcast dynamic collision updates!

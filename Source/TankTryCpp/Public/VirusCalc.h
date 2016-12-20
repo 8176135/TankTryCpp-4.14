@@ -3,6 +3,8 @@
 #pragma once
 
 #include "GameFramework/Actor.h"
+#include "HoverTank.h"
+#include "DonAINavigation/Classes/DonNavigationManager.h"
 #include "VirusCalc.generated.h"
 
 USTRUCT()
@@ -15,14 +17,13 @@ struct FVirusPart
 
 	bool dead = false;
 	bool blocked = false;
-	//bool growing = false;
-//	float growAmount() const { return _growAmount; }
-	//void growAmount(const float& growAmount) { _growAmount = growAmount; }
-	//float currentSize = 0;
-	//FVector* currentSize;
 	float numOfFullSizedNeighbours;
 	UStaticMeshComponent* meshComponent;
+	UPostProcessComponent* PPComponent;
+	UBoxComponent* PPVolume;
+
 	bool fading = false;
+
 	float lifetime;
 	float fadingTime;
 	//FORCEINLINE bool IsDead() const	{ return _dead; }
@@ -31,17 +32,34 @@ private:
 
 public:
 	FVirusPart() {}
-	FVirusPart(FVector realLoc, bool isBlocked, UStaticMeshComponent* meshComp, float startingTimeToLive, float inFadeTime)
+	FVirusPart(FVector realLoc, bool isBlocked, UStaticMeshComponent* meshComp, UPostProcessComponent* PPComp , UBoxComponent* boxComp,float startingTimeToLive, float inFadeTime)
 	{
 		Location = realLoc;
 		meshComponent = meshComp;
 		blocked = isBlocked;
 		lifetime = startingTimeToLive;
 		fadingTime = inFadeTime;
+		PPComponent = PPComp;
+		PPVolume = boxComp;
 	}
 
 
 };
+
+struct PPXValueStorage
+{
+public: 
+	float WhiteTint = 0;
+	float LensFlareIntensity = 0;
+	float BloomIntensity = 0;
+	inline void UpdateValues(float deltaTime)
+	{
+		WhiteTint += deltaTime;
+		LensFlareIntensity += deltaTime;
+		BloomIntensity += deltaTime;
+	}
+};
+
 
 UCLASS()
 class TANKTRYCPP_API AVirusCalc : public AActor
@@ -65,7 +83,10 @@ public:
 	void CheckForNeighbours(FVector BlockToCheck, bool invert);
 	
 	UFUNCTION()
-		void OverlapBegins();
+		void OverlapBegins(class UPrimitiveComponent* HitComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, 
+			int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult);
+	UFUNCTION()
+		void OverlapEnds(class UPrimitiveComponent* HitComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
 	//FVirusWholeXYZ allVirusData;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
@@ -86,6 +107,8 @@ public:
 		TSubclassOf<UDamageType> virusDmgTp;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		UMaterialInterface* fadingMaterial;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		UParticleSystem* sparksPS;
 
 	USceneComponent* sceneComp;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
@@ -93,8 +116,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		UBillboardComponent* billboardMarker;
 
-
 	TMap<FVector, FVirusPart> allVirusData;
+
+	UFUNCTION()
+		void ClearVirusNavBlock(FVector blockToClear);
 private:
 	FVector currentLocation = FVector(0, 0, 0);
 	TArray<FVector> attackLocations;
@@ -103,6 +128,13 @@ private:
 	//VirusSpawningParms
 	FCollisionObjectQueryParams vOQP;
 	FCollisionShape vColShape;
+	AHoverTank* player;
+
+	PPXValueStorage storage;
+	FPostProcessSettings unifiedPPSettings;
+	int numOfCompBeingOverlapped = 0;
+
+	ADonNavigationManager* navManager;
 private:
 	void SpawningTimeElapsed();
 	void GetWorldLocation(FVector boxPos);

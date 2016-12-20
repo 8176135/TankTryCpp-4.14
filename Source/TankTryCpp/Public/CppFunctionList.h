@@ -1,6 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
+#include "HoverTank.h"
 //#include "CppFunctionList.generated.h"
 /**
  *
@@ -22,6 +23,7 @@ public:
 	static FVector Clamp3Numbers(FVector input, float x, float y, float z);
 	static float CosineGraph(float Ampitude, float waveLength, float X);
 
+	static bool GetPlayerPawnCasted(AHoverTank*& OutTank, UWorld* world);
 //	static FVector FindEmptyOrbitRadiusPos(ADonNavigationManager* navManager, FVector target, FVector orbitor, float distance);
 	//static bool IsWithinDistance(float a, float b, float tolerance);
 };

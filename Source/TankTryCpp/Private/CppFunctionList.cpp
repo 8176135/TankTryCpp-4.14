@@ -76,6 +76,21 @@ float UCppFunctionList::CosineGraph(float Ampitude, float waveLength, float X)
 	return (cosineAngle * Ampitude + FMath::Abs(Ampitude));
 }
 
+bool UCppFunctionList::GetPlayerPawnCasted(AHoverTank*& OutTank, UWorld* world)
+{
+	APawn* tempPlayer = UGameplayStatics::GetPlayerPawn(world, 0);
+	if (IsValid(tempPlayer))
+	{
+		OutTank = Cast<AHoverTank>(tempPlayer);
+		return true;
+	}
+	else
+	{
+		OutTank = NULL;
+		return false;
+	}
+}
+
 //FVector UCppFunctionList::FindEmptyOrbitRadiusPos(ADonNavigationManager* navManager, FVector target, FVector orbitor, float distance)
 //{
 //	FVector direction = (orbitor - target).GetSafeNormal();

@@ -969,8 +969,9 @@ public:
 		bool HasTask(AActor* Actor) { return ActiveNavigationTasks.ContainsByPredicate([&Actor](const FDonNavigationQueryTask& task) {return task.Data.Actor.Get() == Actor; }); };
 
 	UFUNCTION(BlueprintCallable, Category = "DoN Navigation")
-		void RemoveCollisionAtMesh(UPrimitiveComponent* mesh, bool &bResultIsValid, FName CustomCacheIdentifier = NAME_None, bool DrawDebug = false);
-
+		void UpdateCollisionAtMesh(UPrimitiveComponent* mesh, bool &bResultIsValid, FName CustomCacheIdentifier = NAME_None, bool DrawDebug = false);
+	UFUNCTION(BlueprintCallable, Category = "DoN Navigation")
+		void ChangeCollisionAtMesh(UPrimitiveComponent* mesh, bool decrease, bool useSimpleCol, bool & bResultIsValid, FName CustomCacheIdentifier = NAME_None, bool DrawDebug = false);
 	/**
 	*  Schedule Dynamic Collision Update For Mesh
 	*
