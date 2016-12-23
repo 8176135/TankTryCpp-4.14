@@ -3,13 +3,13 @@
 #pragma once
 
 #include "GameFramework/PawnMovementComponent.h"
-#include "LaserSentryPMC.generated.h"
+#include "HoverMC.generated.h"
 
 /**
  *
  */
 UCLASS(ClassGroup = Movement, meta = (BlueprintSpawnableComponent))
-class TANKTRYCPP_API ULaserSentryPMC : public UPawnMovementComponent
+class TANKTRYCPP_API UHoverMC : public UPawnMovementComponent
 {
 	GENERATED_BODY()
 

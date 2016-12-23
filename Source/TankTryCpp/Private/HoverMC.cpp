@@ -2,15 +2,16 @@
 
 #include "TankTryCpp.h"
 #include "CppFunctionList.h"
-#include "LaserSentryPMC.h"
+
+#include "HoverMC.h"
 
 
-void ULaserSentryPMC::BeginPlay()
+void UHoverMC::BeginPlay()
 {
 	//oldPosition = UpdatedComponent->GetComponentLocation();
 }
 
-void ULaserSentryPMC::TickComponent(float deltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+void UHoverMC::TickComponent(float deltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	//UCppFunctionList::PrintString(TEXT("PMC"));
 	if (ShouldSkipUpdate(deltaTime))
@@ -72,7 +73,7 @@ void ULaserSentryPMC::TickComponent(float deltaTime, ELevelTick TickType, FActor
 	//UCppFunctionList::PrintBool(PawnOwner->GetController()->IsLocalController());
 }
 
-void ULaserSentryPMC::UpdateComponentVelocity()
+void UHoverMC::UpdateComponentVelocity()
 {
 	if (UpdatedComponent)
 	{

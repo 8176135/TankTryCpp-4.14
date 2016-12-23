@@ -91,6 +91,80 @@ bool UCppFunctionList::GetPlayerPawnCasted(AHoverTank*& OutTank, UWorld* world)
 	}
 }
 
+bool UCppFunctionList::StringToVector(FString inString, FVector& outVec)
+{
+	//X=%3.3f Y=%3.3f Z=%3.3f
+//	int xInd;
+//	int yInd;
+//	int zInd;
+
+	char* cAry = TCHAR_TO_ANSI(*inString);
+	FString xValue = FString();
+	FString yValue = FString();
+	FString zValue = FString();
+
+	int theSwitcher = 0;
+
+	for (int i = 0; i < inString.Len(); ++i)
+	{
+		if (cAry[i] == ' ')
+		{
+			theSwitcher++;
+			continue;
+		}
+
+		if (theSwitcher == 0)
+		{
+			xValue.AppendChar(cAry[i]);
+		}
+		else if (theSwitcher == 1)
+		{
+			yValue.AppendChar(cAry[i]);
+		}
+		else if (theSwitcher == 2)
+		{
+			zValue.AppendChar(cAry[i]);
+		}
+		else
+		{
+			break;
+		}
+		
+	}
+	if (theSwitcher == 2)
+	{
+		outVec = FVector(FCString::Atof(*xValue), FCString::Atof(*yValue), FCString::Atof(*zValue));
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+
+
+	//if (inString.FindChar('X', xInd) && inString.FindChar('Y', yInd) && inString.FindChar('Z', zInd))
+	//{
+
+	//	for (int i = xInd; i < yInd - 1; ++i)
+	//	{
+	//		xValue.AppendChar(cAry[i]);
+	//	}
+	//	outVec = cAry[xInd]
+	//}
+	//else
+	//{
+	//	return false;
+	//}
+
+
+}
+
+FString UCppFunctionList::VectorToString(FVector inVec)
+{
+	return FString::Printf(TEXT("%d %d %d"), FMath::RoundToInt(inVec.X), FMath::RoundToInt(inVec.Y), FMath::RoundToInt(inVec.Z));
+}
+
+
 //FVector UCppFunctionList::FindEmptyOrbitRadiusPos(ADonNavigationManager* navManager, FVector target, FVector orbitor, float distance)
 //{
 //	FVector direction = (orbitor - target).GetSafeNormal();

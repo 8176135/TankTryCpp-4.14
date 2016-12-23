@@ -24,6 +24,8 @@ public:
 	static float CosineGraph(float Ampitude, float waveLength, float X);
 
 	static bool GetPlayerPawnCasted(AHoverTank*& OutTank, UWorld* world);
+	static bool StringToVector(FString inString, FVector& outVec);
+	static FString VectorToString(FVector inVec);
 //	static FVector FindEmptyOrbitRadiusPos(ADonNavigationManager* navManager, FVector target, FVector orbitor, float distance);
 	//static bool IsWithinDistance(float a, float b, float tolerance);
 };

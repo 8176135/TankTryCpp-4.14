@@ -27,6 +27,8 @@ AVirusCalc::AVirusCalc()
 	unifiedPPSettings.bOverride_WhiteTint = 1;
 	unifiedPPSettings.bOverride_LensFlareIntensity = 1;
 	unifiedPPSettings.bOverride_BloomIntensity = 1;
+
+	AddToRoot();
 }
 
 // Called when the game starts or when spawned
@@ -43,6 +45,8 @@ void AVirusCalc::BeginPlay()
 		navManager = *It;
 		break;
 	}
+
+	AddToRoot();
 }
 
 // Called every frame
@@ -96,6 +100,7 @@ void AVirusCalc::Tick(float DeltaTime)
 	{
 		do
 		{
+			//UCppFunctionList::PrintString(FString::Printf(TEXT("EEFE %d"), InternalIndex));
 			if (IsValid(player))
 			{
 				UGameplayStatics::ApplyDamage(player, DeltaTime * dmgPerSecond, NULL, this, virusDmgTp);
@@ -166,7 +171,7 @@ void AVirusCalc::SpawningVirus(FVector curLoc)
 	newStaticMeshComp->SetCollisionProfileName(FName("TemporaryPathBlock"));
 
 	bool validity;
-	navManager->ChangeCollisionAtMesh(newStaticMeshComp, false, true, validity, NAME_None, true);
+	navManager->ChangeCollisionAtMesh(newStaticMeshComp, false, true, validity, NAME_None, false);
 
 	newStaticMeshComp->SetRelativeScale3D(FVector(0, 0, 0));
 	newStaticMeshComp->SetCollisionProfileName(FName("VirusCol"));
@@ -184,28 +189,35 @@ void AVirusCalc::SpawningVirus(FVector curLoc)
 	newPPC->Priority = 2;
 	newPPC->BlendWeight = 0.7f;
 	newPPC->bUnbound = false;
-	//navManager->UpdateCollisionAtMesh(newStaticMeshComp, validity, NAME_None, true);
-	allVirusData.Add(curLoc, FVirusPart(realLoc, overLapResults.Num() == 0 ? false : true, newStaticMeshComp, newPPC, PPCVolume, totalLifetime, fadingTime));
+	//UCppFunctionList::PrintVector(curLoc);
+	FString stringKey = UCppFunctionList::VectorToString(curLoc);
+	//UCppFunctionList::PrintString(stringKey);
+	allVirusData.Add(stringKey, FVirusPart(realLoc, overLapResults.Num() == 0 ? false : true, newStaticMeshComp, newPPC, PPCVolume, totalLifetime, fadingTime));
+	//UCppFunctionList::PrintVector(allVirusData[stringKey].meshComponent->GetComponentLocation());
+	//virusReferences.Add(&allVirusData[curLoc]);
 	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), sparksPS, realLoc, FRotator(FMath::FRandRange(-60, 60), FMath::FRandRange(-180, 180), FMath::FRandRange(-180, 180)));
-	CheckForNeighbours(curLoc, false);
+	CheckForNeighbours(stringKey, false);
 }
 
-void AVirusCalc::QueueVirusesToSpawn(FVector attackerLoc)
+void AVirusCalc::QueueVirusesToSpawn(FString attackerLoc)
 {
+	FVector bTCV;
+	UCppFunctionList::StringToVector(attackerLoc, bTCV);
 	for (FVector direction : allDirections)
 	{
-		FVector checkingLocation = attackerLoc + direction;
-		if (!allVirusData.Contains(checkingLocation))
+		FVector checkingLocation = bTCV + direction;
+		FString checkingLocString = UCppFunctionList::VectorToString(checkingLocation);
+		if (!allVirusData.Contains(checkingLocString))
 		{
 			SpawningVirus(checkingLocation);
 		}
 	}
 }
 
-void AVirusCalc::KillVirus(FVector deadLoc)
+void AVirusCalc::KillVirus(FString deadLoc)
 {
 	bool validity;
-	navManager->ChangeCollisionAtMesh(allVirusData[deadLoc].meshComponent, true, true, validity, NAME_None, true);
+	navManager->ChangeCollisionAtMesh(allVirusData[deadLoc].meshComponent, true, true, validity, NAME_None, false);
 	allVirusData[deadLoc].lifetime = 0;
 	allVirusData[deadLoc].meshComponent->SetVisibility(false);
 	allVirusData[deadLoc].meshComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
@@ -219,21 +231,26 @@ void AVirusCalc::KillVirus(FVector deadLoc)
 	//navManager->UpdateCollisionAtMesh(allVirusData[deadLoc].meshComponent, validity, NAME_None, true);
 }
 
-void AVirusCalc::CheckForNeighbours(FVector blockToCheck, bool invert)
+void AVirusCalc::CheckForNeighbours(FString blockToCheck, bool invert)
 {
-	if (!allVirusData.Contains(blockToCheck))
-	{
-		UCppFunctionList::PrintString("Neighbour not in list");
-		return;
-	}
+	//UCppFunctionList::PrintString(blockToCheck);
+	//if (!allVirusData.Contains(blockToCheck))
+	//{
+	//	UCppFunctionList::PrintString("Neighbour not in list");
+	//	return;
+	//}
+	FVector bTCV;
+	UCppFunctionList::StringToVector(blockToCheck, bTCV);
+
 	if (!invert)
 	{
 		allVirusData[blockToCheck].numOfFullSizedNeighbours = 0;
 		for (FVector direction : allDirections)
 		{
-			FVector checkingLocation = blockToCheck + direction;
-			if (allVirusData.Contains(checkingLocation) && !allVirusData[checkingLocation].dead
-				&& !allVirusData[checkingLocation].blocked && allVirusData[checkingLocation].meshComponent->RelativeScale3D == FVector(1))
+			FVector checkingLocation = bTCV + direction;
+			FString checkingLocString = UCppFunctionList::VectorToString(checkingLocation);
+			if (allVirusData.Contains(checkingLocString) && !allVirusData[checkingLocString].dead
+				&& !allVirusData[checkingLocString].blocked && allVirusData[checkingLocString].meshComponent->RelativeScale3D == FVector(1))
 			{
 				allVirusData[blockToCheck].numOfFullSizedNeighbours++;
 			}
@@ -243,10 +260,11 @@ void AVirusCalc::CheckForNeighbours(FVector blockToCheck, bool invert)
 	{
 		for (FVector direction : allDirections)
 		{
-			FVector checkingLocation = blockToCheck + direction;
-			if (allVirusData.Contains(checkingLocation) && !allVirusData[checkingLocation].dead)
+			FVector checkingLocation = bTCV + direction;
+			FString checkingLocString = UCppFunctionList::VectorToString(checkingLocation);
+			if (allVirusData.Contains(checkingLocString) && !allVirusData[checkingLocString].dead)
 			{
-				allVirusData[checkingLocation].numOfFullSizedNeighbours++;
+				allVirusData[checkingLocString].numOfFullSizedNeighbours++;
 			}
 		}
 	}
@@ -265,12 +283,15 @@ void AVirusCalc::ForceUpdate()
 		{
 			if (data.Value.meshComponent->RelativeScale3D != FVector(1))
 			{
+				FVector bTCV;
+				UCppFunctionList::StringToVector(data.Key, bTCV);
 				allVirusData[data.Key].numOfFullSizedNeighbours = 0;
 				for (FVector direction : allDirections)
 				{
-					FVector checkingLocation = data.Key + direction;
-					if (allVirusData.Contains(checkingLocation) && !allVirusData[checkingLocation].dead
-						&& !allVirusData[checkingLocation].blocked && allVirusData[checkingLocation].meshComponent->RelativeScale3D == FVector(1))
+					FVector checkingLocation = bTCV + direction;
+					FString checkingLocString = UCppFunctionList::VectorToString(checkingLocation);
+					if (allVirusData.Contains(checkingLocString) && !allVirusData[checkingLocString].dead
+						&& !allVirusData[checkingLocString].blocked && allVirusData[checkingLocString].meshComponent->RelativeScale3D == FVector(1))
 					{
 						allVirusData[data.Key].numOfFullSizedNeighbours++;
 					}
@@ -293,7 +314,7 @@ void AVirusCalc::ClearVirusNavBlock(FVector blockToClear)
 void AVirusCalc::SpawningTimeElapsed()
 {
 	SpawningVirus(FVector(0, 0, 0));
-	allVirusData[FVector(0, 0, 0)].numOfFullSizedNeighbours++;
+	allVirusData["0 0 0"].numOfFullSizedNeighbours++;
 	//if (attackLocations.Num() > 0)
 	//{
 	//	if (allVirusData.Contains(attackLocations[0]) && !allVirusData[attackLocations[0]].dead)

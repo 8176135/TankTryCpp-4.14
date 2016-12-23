@@ -8,12 +8,39 @@
 #include "VirusCalc.generated.h"
 
 USTRUCT()
-struct FVirusPart
+struct FMyStruct3
 {
 	GENERATED_USTRUCT_BODY()
 
-	FVector Location;
-	
+		int32 ID;
+
+	bool operator== (const FMyStruct3& Other)
+	{
+		return ID == Other.ID;
+	}
+	friend uint32 GetTypeHash(const FMyStruct3& Other)
+	{
+		return GetTypeHash(Other.ID);
+	}
+};
+
+//UCLASS()
+//class FStringExtention : public FString
+//{
+//	GENERATED_BODY()
+//		int32 hi;
+//		friend int GetTypeHash(const FStringExtention& Other)
+//	{
+//
+//		return GetTypeHash(Cast<FStringExtention>);
+//	}
+//};
+
+USTRUCT()
+struct FVirusPart
+{
+	GENERATED_BODY()
+		FVector Location;
 
 	bool dead = false;
 	bool blocked = false;
@@ -32,7 +59,7 @@ private:
 
 public:
 	FVirusPart() {}
-	FVirusPart(FVector realLoc, bool isBlocked, UStaticMeshComponent* meshComp, UPostProcessComponent* PPComp , UBoxComponent* boxComp,float startingTimeToLive, float inFadeTime)
+	FVirusPart(FVector realLoc, bool isBlocked, UStaticMeshComponent* meshComp, UPostProcessComponent* PPComp, UBoxComponent* boxComp, float startingTimeToLive, float inFadeTime)
 	{
 		Location = realLoc;
 		meshComponent = meshComp;
@@ -46,9 +73,11 @@ public:
 
 };
 
-struct PPXValueStorage
+USTRUCT()
+struct FppXValueStorage
 {
-public: 
+	GENERATED_BODY()
+public:
 	float WhiteTint = 0;
 	float LensFlareIntensity = 0;
 	float BloomIntensity = 0;
@@ -78,12 +107,12 @@ public:
 
 	void ForceUpdate();
 	void SpawningVirus(FVector attackLoc);
-	void QueueVirusesToSpawn(FVector attackerLoc);
-	void KillVirus(FVector deadLoc);
-	void CheckForNeighbours(FVector BlockToCheck, bool invert);
-	
+	void QueueVirusesToSpawn(FString attackerLoc);
+	void KillVirus(FString deadLoc);
+	void CheckForNeighbours(FString blockToCheck, bool invert);
+
 	UFUNCTION()
-		void OverlapBegins(class UPrimitiveComponent* HitComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, 
+		void OverlapBegins(class UPrimitiveComponent* HitComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp,
 			int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult);
 	UFUNCTION()
 		void OverlapEnds(class UPrimitiveComponent* HitComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
@@ -116,7 +145,8 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		UBillboardComponent* billboardMarker;
 
-	TMap<FVector, FVirusPart> allVirusData;
+	UPROPERTY()
+		TMap<FString, FVirusPart> allVirusData;
 
 	UFUNCTION()
 		void ClearVirusNavBlock(FVector blockToClear);
@@ -130,7 +160,9 @@ private:
 	FCollisionShape vColShape;
 	AHoverTank* player;
 
-	PPXValueStorage storage;
+	UPROPERTY()
+		FppXValueStorage storage;
+
 	FPostProcessSettings unifiedPPSettings;
 	int numOfCompBeingOverlapped = 0;
 
