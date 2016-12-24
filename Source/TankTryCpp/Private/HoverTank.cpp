@@ -11,6 +11,30 @@ AHoverTank::AHoverTank()
 	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+	baseSphereComp = CreateDefaultSubobject<USphereComponent>("BaseSphere");
+	baseSphereComp->SetSphereRadius(54.011185);
+	baseSphereComp->SetCollisionProfileName("NewPawn");
+	baseSphereComp->SetLinearDamping(2);
+	baseSphereComp->SetSimulatePhysics(true);
+	SetRootComponent(baseSphereComp);
+	
+	mainPlayerSke = CreateDefaultSubobject<USkeletalMeshComponent>("MainPlayerSkeleton");
+	mainPlayerSke->bGenerateOverlapEvents = true;
+	mainPlayerSke->SetCollisionProfileName("HitBox");
+	mainPlayerSke->AttachToComponent(baseSphereComp,FAttachmentTransformRules(EAttachmentRule::KeepRelative, false));
+
+	eyeCam = CreateDefaultSubobject<UCameraComponent>("EyeCam");
+	eyeCam->ComponentTags.Add("MainCamera");
+	eyeCam->AttachToComponent(mainPlayerSke, FAttachmentTransformRules(EAttachmentRule::KeepRelative, false),"EyeSocket");
+	eyeCam->SetRelativeRotation(FRotator(0, 0, -90));
+	//mainPlayerSke = Cast<USkeletalMeshComponent>(GetComponentByClass(TSubclassOf<USkeletalMeshComponent>()));
+
+	//TArray<UActorComponent*> cameraStuff = GetComponentsByTag(TSubclassOf<UActorComponent>(), "MainCamera");
+	//UCppFunctionList::PrintString("eeee ---> %d", cameraStuff.Num());
+	//if (cameraStuff.Num() > 0)
+	//{
+	//	eyeCam = Cast<UCameraComponent>(cameraStuff[0]);
+	//}
 }
 
 // Called when the game starts or when spawned
@@ -48,7 +72,6 @@ void AHoverTank::EditDisplaySize(UPARAM(ref) UDecalComponent *hello, float sizeT
 	if (IsValid(hello))
 	{
 		hello->FadeScreenSize = sizeToSetTo;
-
 	}
 }
 

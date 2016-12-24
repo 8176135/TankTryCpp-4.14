@@ -21,11 +21,18 @@ public:
 	virtual void SetPawn(APawn* inPawn) override;
 	virtual void SetupInputComponent() override;
 
+	//Input Axis
 	void MoveForward(float AxisValue);
 	void MoveRight(float AxisValue);
 	void PitchCamera(float AxisValue);
 	void YawCamera(float AxisValue);
 
+	//Input Actions
+	void RequestRespawn();
+
 	AHoverTank* controlledPawn;
 	ATankStateCpp* tankState;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		TSubclassOf<AHoverTank> unitToSpawn;
 };

@@ -44,6 +44,11 @@ void UCppFunctionList::PrintString(FString txt)
 	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Cyan, (txt));
 }
 
+void UCppFunctionList::PrintString(FString txt, float input)
+{
+	PrintString(FString::Printf(*txt, input));
+}
+
 void UCppFunctionList::PrintBool(bool inBool)
 {
 	UE_LOG(LogTemp, Log, TEXT("%s"), inBool ? "True" : "False");

@@ -8,16 +8,22 @@ AHoverTankController::AHoverTankController(const FObjectInitializer& ObjectIniti
 {
 	//SetActorTickEnabled(true);
 	tankState = Cast<ATankStateCpp>(PlayerState);
+
+	
 }
 
 void AHoverTankController::BeginPlay()
 {
-	
+	//-272 769 116
+	//FVector(-272, 769, 116)
+	FActorSpawnParameters spawnParms = FActorSpawnParameters();
+	Possess(GetWorld()->SpawnActor<APawn>(unitToSpawn, FVector(-272, 769, 116), FRotator(0, 0, 0), spawnParms));
+	Super::BeginPlay();
 }
 
 void AHoverTankController::Tick(float DeltaTime)
 {
-
+	Super::Tick(DeltaTime);
 }
 
 void AHoverTankController::SetPawn(APawn* inPawn)
@@ -37,13 +43,26 @@ void AHoverTankController::SetupInputComponent()
 	InputComponent->BindAxis("LookUp", this, &AHoverTankController::PitchCamera);
 	InputComponent->BindAxis("Turn", this, &AHoverTankController::YawCamera);
 
+	InputComponent->BindAction("Respawn", IE_Pressed, this, &AHoverTankController::RequestRespawn);
+}
+
+void AHoverTankController::RequestRespawn()
+{
+	if (IsValid(controlledPawn))
+	{
+		UCppFunctionList::PrintString("RespawnToBeImplemented");
+	}
+	else
+	{
+		UCppFunctionList::PrintString("Ur still alive");
+	}
 }
 
 void AHoverTankController::MoveForward(float AxisValue)
 {
 	if (IsValid(controlledPawn))
 	{
-		controlledPawn->AddMovementInput(FVector(AxisValue, 0, 0));
+		controlledPawn->AddMovementInput(controlledPawn->eyeCam->GetForwardVector() * AxisValue);
 	}
 }
 
@@ -51,16 +70,16 @@ void AHoverTankController::MoveRight(float AxisValue)
 {
 	if (IsValid(controlledPawn))
 	{
-		controlledPawn->AddMovementInput(FVector(0, AxisValue, 0));
+		controlledPawn->AddMovementInput(controlledPawn->eyeCam->GetRightVector() * (AxisValue));
 	}
 }
 
 void AHoverTankController::PitchCamera(float AxisValue)
 {
-
+	controlledPawn->TruePitch = FMath::ClampAngle(controlledPawn->TruePitch - AxisValue, -60.0f, 60.0f);
 }
 
 void AHoverTankController::YawCamera(float AxisValue)
 {
-
+	controlledPawn->TurretYaw = controlledPawn->TurretYaw + AxisValue;
 }

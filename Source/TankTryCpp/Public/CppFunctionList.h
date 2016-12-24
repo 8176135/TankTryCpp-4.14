@@ -19,6 +19,7 @@ public:
 	static void PrintVector(FVector input, float timeOnScreen = 5);
 	static void PrintRotator(FRotator input);
 	static void PrintString(FString txt);
+	static void PrintString(FString txt, float input);
 	static void PrintBool(bool inBool);
 	static FVector Clamp3Numbers(FVector input, float x, float y, float z);
 	static float CosineGraph(float Ampitude, float waveLength, float X);

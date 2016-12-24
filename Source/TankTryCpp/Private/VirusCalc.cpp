@@ -28,7 +28,7 @@ AVirusCalc::AVirusCalc()
 	unifiedPPSettings.bOverride_LensFlareIntensity = 1;
 	unifiedPPSettings.bOverride_BloomIntensity = 1;
 
-	AddToRoot();
+	//AddToRoot();
 }
 
 // Called when the game starts or when spawned
@@ -46,7 +46,7 @@ void AVirusCalc::BeginPlay()
 		break;
 	}
 
-	AddToRoot();
+	//AddToRoot();
 }
 
 // Called every frame

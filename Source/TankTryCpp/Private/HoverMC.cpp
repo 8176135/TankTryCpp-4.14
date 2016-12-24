@@ -9,6 +9,7 @@
 void UHoverMC::BeginPlay()
 {
 	//oldPosition = UpdatedComponent->GetComponentLocation();
+	Super::BeginPlay();
 }
 
 void UHoverMC::TickComponent(float deltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -31,16 +32,22 @@ void UHoverMC::TickComponent(float deltaTime, ELevelTick TickType, FActorCompone
 	{
 		//UCppFunctionList::PrintVector(GetInputVector());
 		FVector desiredMovementThisFrame = ConsumeInputVector().GetClampedToMaxSize(1) * deltaTime * maxSpeed;
-		if (!desiredMovementThisFrame.IsNearlyZero())
+
+		FVector trueMovThisFrame = FMath::Lerp(oldVelocity, desiredMovementThisFrame, deltaTime / turningTime);
+		oldVelocity = trueMovThisFrame;
+
+		if (!trueMovThisFrame.IsNearlyZero())
 		{
-			FVector trueMovThisFrame = FMath::Lerp(oldVelocity, desiredMovementThisFrame, deltaTime / turningTime);
-			oldVelocity = trueMovThisFrame;
 			FHitResult Hit;
+
 			SafeMoveUpdatedComponent(trueMovThisFrame, UpdatedComponent->GetComponentRotation(), true, Hit);
 			if (Hit.IsValidBlockingHit())
 			{
 				HandleImpact(Hit, deltaTime, trueMovThisFrame);
-				SlideAlongSurface(trueMovThisFrame, 1.0 - Hit.Time, Hit.Normal, Hit);
+				
+				float percentOfHit = SlideAlongSurface(trueMovThisFrame, 1.0 - Hit.Time, Hit.Normal, Hit);
+				//UCppFunctionList::PrintVector(Hit.);
+				UCppFunctionList::PrintString(FString::Printf(TEXT("time? %f"), percentOfHit));
 			}
 		}
 

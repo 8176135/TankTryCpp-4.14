@@ -27,14 +27,20 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* InputComponent) override;
 
-	//void ToggleVirusPPEfx(bool turnOn);
-	//UPROPERTY(BlueprintReadOnly, Category="Effects")
-//	bool VirusPPEfxIsOn = false;
-	
-	//UFUNCTION(BlueprintCallable, Category = "Effects")
-	//	void UpdatePostProcessSettings(float deltaTime, UPARAM(ref) FPostProcessSettings& currentPPS);
-	//UFUNCTION(BlueprintImplementableEvent, Category = "Effects")
-	//	void ToggleVirusEfxBlueprint(bool turnOn);
+
+	UPROPERTY(BlueprintReadOnly, Category = "Animation")
+		float TurretYaw = 0;
+	UPROPERTY(BlueprintReadOnly, Category = "Animation")
+		float TruePitch = 0;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+		USphereComponent* baseSphereComp;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+		USkeletalMeshComponent* mainPlayerSke;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+		UCameraComponent* eyeCam;
+
+
 private:
 
 	//UFUNCTION(BlueprintPure, meta=(DisplayName = "Get Closest Location Around Target", Category = "Utility"))
