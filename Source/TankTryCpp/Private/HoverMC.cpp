@@ -32,7 +32,7 @@ void UHoverMC::TickComponent(float deltaTime, ELevelTick TickType, FActorCompone
 	{
 		//UCppFunctionList::PrintVector(GetInputVector());
 		FVector desiredMovementThisFrame = ConsumeInputVector().GetClampedToMaxSize(1) * deltaTime * maxSpeed;
-
+		FVector oldPosition = UpdatedComponent->GetComponentLocation();
 		FVector trueMovThisFrame = FMath::Lerp(oldVelocity, desiredMovementThisFrame, deltaTime / turningTime);
 		oldVelocity = trueMovThisFrame;
 
@@ -44,10 +44,11 @@ void UHoverMC::TickComponent(float deltaTime, ELevelTick TickType, FActorCompone
 			if (Hit.IsValidBlockingHit())
 			{
 				HandleImpact(Hit, deltaTime, trueMovThisFrame);
-				
+
 				float percentOfHit = SlideAlongSurface(trueMovThisFrame, 1.0 - Hit.Time, Hit.Normal, Hit);
-				//UCppFunctionList::PrintVector(Hit.);
-				UCppFunctionList::PrintString(FString::Printf(TEXT("time? %f"), percentOfHit));
+
+				FVector actualMovement = UpdatedComponent->GetComponentLocation() - oldPosition;
+				oldVelocity = actualMovement;
 			}
 		}
 

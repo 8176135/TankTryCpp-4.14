@@ -23,7 +23,7 @@ public:
 	static void PrintBool(bool inBool);
 	static FVector Clamp3Numbers(FVector input, float x, float y, float z);
 	static float CosineGraph(float Ampitude, float waveLength, float X);
-
+	static FRotator SpreadRotator(FRotator inRot, float spreadAmt);
 	static bool GetPlayerPawnCasted(AHoverTank*& OutTank, UWorld* world);
 	static bool StringToVector(FString inString, FVector& outVec);
 	static FString VectorToString(FVector inVec);

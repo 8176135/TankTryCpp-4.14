@@ -23,6 +23,8 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* InputComponent) override;
 
-	
-	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+		UCameraComponent* specCam;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+		USceneComponent* rootSceComp;
 };

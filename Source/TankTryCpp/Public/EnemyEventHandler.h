@@ -8,14 +8,15 @@ UCLASS()
 class TANKTRYCPP_API UEnemyEventHandler : public UActorComponent
 {
 	GENERATED_BODY()
-	
-public:	
+
+public:
 	// Sets default values for this actor's properties
 	UEnemyEventHandler();
-	
+
 	DECLARE_DELEGATE_OneParam(ChildIsBeingHurt, float);
 	ChildIsBeingHurt HurtDele;
 
-	
-	
+	DECLARE_DELEGATE(TransitionFinished);
+	TransitionFinishedDele TransFinDele;
+
 };

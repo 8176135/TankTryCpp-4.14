@@ -81,6 +81,14 @@ float UCppFunctionList::CosineGraph(float Ampitude, float waveLength, float X)
 	return (cosineAngle * Ampitude + FMath::Abs(Ampitude));
 }
 
+FRotator UCppFunctionList::SpreadRotator(FRotator inRot, float spreadAmt)
+{
+	inRot.Roll = inRot.Roll - spreadAmt / 2 + FMath::FRand() * spreadAmt;
+	inRot.Yaw = inRot.Yaw - spreadAmt / 2 + FMath::FRand() * spreadAmt;
+	inRot.Pitch = inRot.Pitch - spreadAmt / 2 + FMath::FRand() * spreadAmt;
+	return inRot;
+}
+
 bool UCppFunctionList::GetPlayerPawnCasted(AHoverTank*& OutTank, UWorld* world)
 {
 	APawn* tempPlayer = UGameplayStatics::GetPlayerPawn(world, 0);

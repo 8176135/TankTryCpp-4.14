@@ -9,7 +9,11 @@ ASpecCamera::ASpecCamera()
 {
  	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
+	rootSceComp = CreateDefaultSubobject<USceneComponent>("RootSceneComponent");
+	SetRootComponent(rootSceComp);
 
+	specCam = CreateDefaultSubobject<UCameraComponent>("SpectatorCamera");
+	specCam->AttachToComponent(rootSceComp, FAttachmentTransformRules(EAttachmentRule::KeepRelative, false));
 }
 
 // Called when the game starts or when spawned

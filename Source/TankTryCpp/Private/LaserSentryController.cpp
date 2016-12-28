@@ -40,7 +40,6 @@ void ALaserSentryController::SetPawn(APawn* inPawn)
 {
 	if (IsValid(inPawn))
 	{
-		UCppFunctionList::PrintString("Brah");
 		ControlledPawn = Cast<ALaserOrbCpp>(inPawn);
 		EEHandler = ControlledPawn->EEHandler;
 		if ((*EEHandler).HurtDele.IsBound())

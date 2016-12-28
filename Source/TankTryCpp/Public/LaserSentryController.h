@@ -24,8 +24,8 @@ public:
 	UEnemyEventHandler* EEHandler;
 
 	UFUNCTION()
-	void CtrlPawnIsHurt(float amountOfDmg);
-	
+		void CtrlPawnIsHurt(float amountOfDmg);
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = AiEssential)
 		AActor *AiTarget;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = EnemyEssential)

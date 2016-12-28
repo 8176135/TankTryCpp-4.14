@@ -14,6 +14,8 @@ class TANKTRYCPP_API ATankStateCpp : public APlayerState
 	GENERATED_BODY()
 
 public:
+
+	//static ATankStateCpp* theCorrectPlayerState;
 	//Ammo
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Ammo)
 		int AmmoClipMax = 30;

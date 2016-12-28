@@ -5,6 +5,8 @@
 #include "GameFramework/PlayerController.h"
 #include "HoverTank.h"
 #include "TankStateCpp.h"
+#include "BaseTurret.h"
+#include "SpecCamera.h"
 #include "HoverTankController.generated.h"
 
 /**
@@ -22,17 +24,29 @@ public:
 	virtual void SetupInputComponent() override;
 
 	//Input Axis
-	void MoveForward(float AxisValue);
-	void MoveRight(float AxisValue);
+	//void MoveForward(float AxisValue);
+	//void MoveRight(float AxisValue);
 	void PitchCamera(float AxisValue);
 	void YawCamera(float AxisValue);
 
 	//Input Actions
+	void BeginFiring();
+	void EndFiring();
 	void RequestRespawn();
+	void JumpTurret();
+	void BuildTurret();
 
-	AHoverTank* controlledPawn;
+	UFUNCTION()
+		void MovementIsCompleted();
+
+	ABaseTurret* controlledPawn;
+	ASpecCamera* transitionCamera;
 	ATankStateCpp* tankState;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		TSubclassOf<AHoverTank> unitToSpawn;
+		TSubclassOf<ABaseTurret> unitToSpawn;
+
+private:
+	bool allowJump = true;
+	ABaseTurret* possesionElict;
 };

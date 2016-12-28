@@ -17,15 +17,15 @@ AHoverTank::AHoverTank()
 	baseSphereComp->SetLinearDamping(2);
 	baseSphereComp->SetSimulatePhysics(true);
 	SetRootComponent(baseSphereComp);
-	
+
 	mainPlayerSke = CreateDefaultSubobject<USkeletalMeshComponent>("MainPlayerSkeleton");
 	mainPlayerSke->bGenerateOverlapEvents = true;
 	mainPlayerSke->SetCollisionProfileName("HitBox");
-	mainPlayerSke->AttachToComponent(baseSphereComp,FAttachmentTransformRules(EAttachmentRule::KeepRelative, false));
+	mainPlayerSke->AttachToComponent(baseSphereComp, FAttachmentTransformRules(EAttachmentRule::KeepRelative, false));
 
 	eyeCam = CreateDefaultSubobject<UCameraComponent>("EyeCam");
 	eyeCam->ComponentTags.Add("MainCamera");
-	eyeCam->AttachToComponent(mainPlayerSke, FAttachmentTransformRules(EAttachmentRule::KeepRelative, false),"EyeSocket");
+	eyeCam->AttachToComponent(mainPlayerSke, FAttachmentTransformRules(EAttachmentRule::KeepRelative, false), "EyeSocket");
 	eyeCam->SetRelativeRotation(FRotator(0, 0, -90));
 	//mainPlayerSke = Cast<USkeletalMeshComponent>(GetComponentByClass(TSubclassOf<USkeletalMeshComponent>()));
 
@@ -55,6 +55,30 @@ void AHoverTank::Tick(float DeltaTime)
 void AHoverTank::SetupPlayerInputComponent(class UInputComponent* inInputComponent)
 {
 	Super::SetupPlayerInputComponent(inInputComponent);
+
+}
+
+float AHoverTank::TakeDamage(float Damage, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+{
+	FHitResult hitRes;
+	FVector impulseDir;
+	DamageEvent.GetBestHitInfo(this, DamageCauser, hitRes, impulseDir);
+	if (!IsDamageble)
+	{
+		return 0;
+	}
+
+	health = FMath::Clamp(health - Damage, 0.0f, 100.0f);
+	if (health == 0 && GetLifeSpan() == 0)
+	{
+		SetLifeSpan(0.1f);
+	}
+	return Damage;
+}
+
+void AHoverTank::Destroyed()
+{
+	//UGameplayStatics::SpawnEmitterAtLocation()
 }
 
 //void AHoverTank::UpdatePostProcessSettings(float deltaTime, UPARAM(ref) FPostProcessSettings& currentPPS)

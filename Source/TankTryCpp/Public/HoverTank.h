@@ -17,16 +17,19 @@ public:
 		void EditDisplaySize(UPARAM(ref) UDecalComponent * hello, float sizeToSetTo);
 	// Sets default values for this pawn's properties
 	AHoverTank();
-
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-
 	// Called every frame
 	virtual void Tick(float DeltaSeconds) override;
-
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* InputComponent) override;
+	virtual float TakeDamage(float Damage, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
+	virtual void Destroyed() override;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Essentials")
+		float health = 0;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Extras")
+		bool IsDamageble = true;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Animation")
 		float TurretYaw = 0;
@@ -40,6 +43,7 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 		UCameraComponent* eyeCam;
 
+	
 
 private:
 
