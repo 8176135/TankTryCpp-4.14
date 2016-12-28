@@ -13,7 +13,8 @@ void AHoverTankController::BeginPlay()
 {
 	FActorSpawnParameters spawnParms = FActorSpawnParameters();
 	spawnParms.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-	transitionCamera = GetWorld()->SpawnActor<ASpecCamera>(ASpecCamera::StaticClass(), FVector(0, 0, 0), FRotator(0, 0, 0), spawnParms);
+	transitionCamera = GetWorld()->SpawnActor<ASpecCamera>(specCamToSpawn, FVector(0, 0, 0), FRotator(0, 0, 0), spawnParms);
+	transitionCamera->EEHandler->TransFinDele.BindUFunction(this, "MovementIsCompleted");
 	Possess(GetWorld()->SpawnActor<ABaseTurret>(unitToSpawn, FVector(-272, 769, 116), FRotator(0, 0, 0), spawnParms));
 	tankState = Cast<ATankStateCpp>(UGameplayStatics::GetPlayerController(GetWorld(), 0)->PlayerState);
 	Super::BeginPlay();
@@ -38,7 +39,15 @@ void AHoverTankController::SetPawn(APawn* inPawn)
 {
 	if (IsValid(inPawn))
 	{
-		controlledPawn = Cast<ABaseTurret>(inPawn);
+		if (inPawn->IsA(ABaseTurret::StaticClass()))
+		{
+			controlledPawn = Cast<ABaseTurret>(inPawn);
+		}
+		else
+		{
+			allowJump = false;
+		}
+
 	}
 	Super::SetPawn(inPawn);
 }
@@ -60,13 +69,18 @@ void AHoverTankController::SetupInputComponent()
 
 void AHoverTankController::BeginFiring()
 {
-	controlledPawn->BeginFiring();
-
+	if (allowJump)
+	{
+		controlledPawn->BeginFiring();
+	}
 }
 
 void AHoverTankController::EndFiring()
 {
-	controlledPawn->StopFiring();
+	if (allowJump)
+	{
+		controlledPawn->StopFiring();
+	}
 }
 
 void AHoverTankController::RequestRespawn()
@@ -101,6 +115,8 @@ void AHoverTankController::JumpTurret()
 			transitionCamera->SetActorLocationAndRotation(controlledPawn->eyeCam->GetComponentLocation(), controlledPawn->eyeCam->GetComponentRotation());
 			Possess(transitionCamera);
 			possesionElict = candidate;
+			transitionCamera->StartTransition(candidate->eyeCam->GetComponentLocation(), candidate->eyeCam->GetComponentRotation());
+			allowJump = false;
 		}
 		else
 		{
@@ -123,7 +139,7 @@ void AHoverTankController::MovementIsCompleted()
 	allowJump = true;
 	if (IsValid(possesionElict))
 	{
-		
+		Possess(possesionElict);
 	}
 	possesionElict = nullptr;
 }

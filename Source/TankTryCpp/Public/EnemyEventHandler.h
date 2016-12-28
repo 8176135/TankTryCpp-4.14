@@ -17,6 +17,6 @@ public:
 	ChildIsBeingHurt HurtDele;
 
 	DECLARE_DELEGATE(TransitionFinished);
-	TransitionFinishedDele TransFinDele;
+	TransitionFinished TransFinDele;
 
 };

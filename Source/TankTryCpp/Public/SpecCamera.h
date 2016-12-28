@@ -3,6 +3,8 @@
 #pragma once
 
 #include "GameFramework/Pawn.h"
+#include "EnemyEventHandler.h"
+#include "Runtime/Engine/Classes/Components/TimelineComponent.h"
 #include "SpecCamera.generated.h"
 
 UCLASS()
@@ -21,10 +23,30 @@ public:
 	virtual void Tick( float DeltaSeconds ) override;
 
 	// Called to bind functionality to input
-	virtual void SetupPlayerInputComponent(class UInputComponent* InputComponent) override;
+	//virtual void SetupPlayerInputComponent(class UInputComponent* InputComponent) override;
 
+	void StartTransition(FVector target, FRotator targetRot);
+
+	UEnemyEventHandler* EEHandler;
+	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 		UCameraComponent* specCam;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 		USceneComponent* rootSceComp;
+	UPROPERTY()
+		UTimelineComponent* transTimeline;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		UCurveFloat* transCurve;
+
+	FOnTimelineFloat InterpFunction{};
+
+	UFUNCTION()
+		void TimelineFloatReturn(float val);
+
+	private:
+		FVector startingLoc;
+		FRotator startingRot;
+		FVector endingLoc;
+		FRotator endingRot;
+
 };

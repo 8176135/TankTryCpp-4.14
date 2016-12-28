@@ -45,7 +45,8 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		TSubclassOf<ABaseTurret> unitToSpawn;
-
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		TSubclassOf<ASpecCamera> specCamToSpawn;
 private:
 	bool allowJump = true;
 	ABaseTurret* possesionElict;
