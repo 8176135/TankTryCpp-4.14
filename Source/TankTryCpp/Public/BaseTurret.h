@@ -18,25 +18,30 @@ public:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 	// Called every frame
-	virtual void Tick( float DeltaSeconds ) override;
+	virtual void Tick(float DeltaSeconds) override;
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* InputComponent) override;
 	virtual void PostEditChangeProperty(struct FPropertyChangedEvent& changedEvent) override;
 
-	UPROPERTY(BlueprintReadOnly)
+	UPROPERTY(BlueprintReadOnly, Category = Components)
 		USceneComponent* sceneComp;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Components)
 		USkeletalMeshComponent* mainTurretSke;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Components)
 		UCameraComponent* eyeCam;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Components)
 		UParticleSystemComponent* bulletPartic;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Components)
 		UParticleSystemComponent* muzzleFlashPartic;
 
-	UPROPERTY(BlueprintReadOnly, Category=Animation)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Gameplay)
+		float damagePerShot = 5;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Gameplay)
+		TSubclassOf<UDamageType> dmgType;
+
+	UPROPERTY(BlueprintReadOnly, Category = Animation)
 		float turretYaw = 0;
-	UPROPERTY(BlueprintReadOnly, Category=Animation)
+	UPROPERTY(BlueprintReadOnly, Category = Animation)
 		float turretTruePitch = 0;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animation)
 		UAnimMontage* gunFireMont;
@@ -46,10 +51,16 @@ public:
 		float gunHeatPerShot = 0.1;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Weapon)
 		float gunCooldownSpeed = 0.1;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Weapon)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Weapon)
 		float maxInaccuracy = 5;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Weapon)
 		TArray<TEnumAsByte<ECollisionChannel>> bulletBlockers;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Effects)
+		UParticleSystem* bulletHitPartic;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Effects)
+		UMaterialInterface* bulletHitDecal;
+
 
 	void BeginFiring();
 	void StopFiring();

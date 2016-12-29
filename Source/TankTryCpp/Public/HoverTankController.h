@@ -40,6 +40,9 @@ public:
 		void MovementIsCompleted();
 
 	ABaseTurret* controlledPawn;
+	UPROPERTY()
+		TArray<ABaseTurret*> allTurretsSpawned;
+
 	ASpecCamera* transitionCamera;
 	ATankStateCpp* tankState;
 

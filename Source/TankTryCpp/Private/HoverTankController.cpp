@@ -15,14 +15,16 @@ void AHoverTankController::BeginPlay()
 	spawnParms.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 	transitionCamera = GetWorld()->SpawnActor<ASpecCamera>(specCamToSpawn, FVector(0, 0, 0), FRotator(0, 0, 0), spawnParms);
 	transitionCamera->EEHandler->TransFinDele.BindUFunction(this, "MovementIsCompleted");
-	Possess(GetWorld()->SpawnActor<ABaseTurret>(unitToSpawn, FVector(-272, 769, 116), FRotator(0, 0, 0), spawnParms));
+	ABaseTurret* startingTurret = GetWorld()->SpawnActor<ABaseTurret>(unitToSpawn, FVector(-272, 769, 116), FRotator(0, 0, 0), spawnParms);
+	allTurretsSpawned.AddUnique(startingTurret);
+	Possess(startingTurret);
 	tankState = Cast<ATankStateCpp>(UGameplayStatics::GetPlayerController(GetWorld(), 0)->PlayerState);
 	Super::BeginPlay();
 }
 
 void AHoverTankController::Tick(float DeltaTime)
 {
-	if (IsValid(controlledPawn) && IsValid(tankState))
+	if (IsValid(controlledPawn) && tankState)
 	{
 		FHitResult hitRes;
 		if (GetWorld()->LineTraceSingleByChannel(hitRes, controlledPawn->eyeCam->GetComponentLocation(),
@@ -30,7 +32,22 @@ void AHoverTankController::Tick(float DeltaTime)
 		{
 			tankState->AimLocation = hitRes.Location;
 		}
-
+		for (int i = 0; i < allTurretsSpawned.Num(); ++i)
+		{
+			if (!IsValid(allTurretsSpawned[i]))
+			{
+				allTurretsSpawned.RemoveAt(i);
+				i--;
+				continue;
+			}
+			if (allTurretsSpawned[i] != controlledPawn && allTurretsSpawned[i] != possesionElict)
+			{
+				FRotator deltaRot = (allTurretsSpawned[i]->mainTurretSke->GetSocketLocation("Turret") - tankState->AimLocation).Rotation();
+				FRotator correctRotation = FMath::RInterpTo(FRotator(allTurretsSpawned[i]->turretTruePitch, allTurretsSpawned[i]->turretYaw, 0), deltaRot, DeltaTime, 5);
+				allTurretsSpawned[i]->turretYaw = correctRotation.Yaw;
+				allTurretsSpawned[i]->turretTruePitch = correctRotation.Pitch;
+			}
+		}
 	}
 	Super::Tick(DeltaTime);
 }
@@ -47,7 +64,6 @@ void AHoverTankController::SetPawn(APawn* inPawn)
 		{
 			allowJump = false;
 		}
-
 	}
 	Super::SetPawn(inPawn);
 }
@@ -55,8 +71,6 @@ void AHoverTankController::SetPawn(APawn* inPawn)
 void AHoverTankController::SetupInputComponent()
 {
 	Super::SetupInputComponent();
-	//InputComponent->BindAxis("MoveForward", this, &AHoverTankController::MoveForward);
-	//InputComponent->BindAxis("MoveRight", this, &AHoverTankController::MoveRight);
 	InputComponent->BindAxis("LookUp", this, &AHoverTankController::PitchCamera);
 	InputComponent->BindAxis("Turn", this, &AHoverTankController::YawCamera);
 
@@ -71,7 +85,10 @@ void AHoverTankController::BeginFiring()
 {
 	if (allowJump)
 	{
-		controlledPawn->BeginFiring();
+		for (ABaseTurret* turret : allTurretsSpawned)
+		{
+			turret->BeginFiring();
+		}
 	}
 }
 
@@ -79,7 +96,10 @@ void AHoverTankController::EndFiring()
 {
 	if (allowJump)
 	{
-		controlledPawn->StopFiring();
+		for (ABaseTurret* turret : allTurretsSpawned)
+		{
+			turret->StopFiring();
+		}
 	}
 }
 
@@ -112,9 +132,13 @@ void AHoverTankController::JumpTurret()
 		ABaseTurret* candidate = Cast<ABaseTurret>(hitRes.GetActor());
 		if (candidate != NULL)
 		{
+			for (ABaseTurret* turret : allTurretsSpawned)
+			{
+				turret->StopFiring();
+			}
+			possesionElict = candidate;
 			transitionCamera->SetActorLocationAndRotation(controlledPawn->eyeCam->GetComponentLocation(), controlledPawn->eyeCam->GetComponentRotation());
 			Possess(transitionCamera);
-			possesionElict = candidate;
 			transitionCamera->StartTransition(candidate->eyeCam->GetComponentLocation(), candidate->eyeCam->GetComponentRotation());
 			allowJump = false;
 		}
@@ -131,7 +155,11 @@ void AHoverTankController::JumpTurret()
 
 void AHoverTankController::BuildTurret()
 {
-	GetWorld()->SpawnActor<ABaseTurret>(unitToSpawn, tankState->AimLocation, FRotator(0), FActorSpawnParameters());
+	ABaseTurret* newTurret = GetWorld()->SpawnActor<ABaseTurret>(unitToSpawn, tankState->AimLocation, FRotator(0), FActorSpawnParameters());
+	if (IsValid(newTurret))
+	{
+		allTurretsSpawned.AddUnique(newTurret);
+	}
 }
 
 void AHoverTankController::MovementIsCompleted()

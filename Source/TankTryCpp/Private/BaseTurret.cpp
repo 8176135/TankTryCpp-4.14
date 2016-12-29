@@ -74,7 +74,6 @@ void ABaseTurret::BeginPlay()
 void ABaseTurret::Tick(float DeltaTime)
 {
 	spreadXVal = FMath::Clamp(spreadXVal - DeltaTime * PI * gunCooldownSpeed, 0.0f, PI / 2);
-	//UCppFunctionList::PrintString("%f", spreadXVal);
 	Super::Tick(DeltaTime);
 
 }
@@ -98,16 +97,17 @@ void ABaseTurret::PostEditChangeProperty(struct FPropertyChangedEvent& changedEv
 
 void ABaseTurret::BeginFiring()
 {
-	if (timerPausePend)
-	{
-		timerPausePend = false;
-		return;
-	}
+	GetWorldTimerManager().UnPauseTimer(firingTimer);
+	timerPausePend = false;
+	//if (timerPausePend)
+	//{
+	//	timerPausePend = false;
+	//	return;
+	//}
 	if (animationInst)
 	{
 		animationInst->Montage_Play(gunFireMont, fireRPM / 60, EMontagePlayReturnType::Duration, 0);
 	}
-	GetWorldTimerManager().UnPauseTimer(firingTimer);
 }
 
 void ABaseTurret::StopFiring()
@@ -135,12 +135,17 @@ void ABaseTurret::FireGun()
 
 	FHitResult hitRes;
 	bool hit = GetWorld()->LineTraceSingleByObjectType(hitRes, startingLoc, endingLoc, objQuery, colQuery);
-
 	if (hit && hitRes.IsValidBlockingHit())
 	{
 		if (IsValid(hitRes.GetActor()))
 		{
-			UCppFunctionList::PrintString("Shot Hit!!!");
+			UGameplayStatics::ApplyPointDamage(hitRes.GetActor(), damagePerShot, hitRes.TraceStart - hitRes.Location, hitRes, GetController(), this, dmgType);
+		}
+		if (hitRes.GetComponent())
+		{
+			UGameplayStatics::SpawnDecalAttached(bulletHitDecal, FVector(5, FMath::FRandRange(8, 10.5f), FMath::FRandRange(8, 10.5f)),
+				hitRes.GetComponent(), NAME_None, hitRes.Location, hitRes.Normal.Rotation().Add(0, 180, FMath::FRand() * 360), EAttachLocation::KeepWorldPosition, 60);
+			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), bulletHitPartic, hitRes.Location, hitRes.Normal.Rotation());
 		}
 		ParticleEfx(hitRes.Location);
 	}
